@@ -1,3 +1,4 @@
 #!/bin/bash
 
-echo "Init Magento CLI tools"
+# Add bin folder to PATH
+export PATH="~/.magetools/bin:$PATH"
