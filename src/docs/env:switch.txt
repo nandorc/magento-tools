@@ -1,0 +1,8 @@
+mage env:switch [options] <env_name>
+
+Description:
+    This command lets you change the active env depending on <env_name>
+
+Options:
+    --help
+        Displays this document.

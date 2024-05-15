@@ -1,0 +1,29 @@
+mage env:setup [options]
+
+Description:
+    This command provides a way to create a new magento env.
+
+Options:
+    --help
+        Displays this document.
+
+    --name <env_name>
+        Define magento env name. Default is "default".
+
+    --mode <env_mode>
+        This value defines the deploy mode that will be used in the env. It must be "dev" or "prod". Default value is "dev".
+
+    --no-install
+        Prevents env to execute install commands. Could be use to "recreate" an env without affecting database.
+
+    --no-repo
+        Use this flag when want to create an env using a fresh Magento install.
+
+    --vars
+        (Required) This parameter defines the location for vars file. It must be an absolute path.
+
+    --with-fs
+        Specifies when the env will use shared file system between nodes.
+    
+    --with-cron
+        Specifies if the env will use cron and it must be installed.

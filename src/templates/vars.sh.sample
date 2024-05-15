@@ -1,0 +1,40 @@
+# git_protocol - Connection protocol must be http, https or ssh
+git_protocol=ssh
+# git_user - User to access when protocol is http/https
+git_user=
+# git_key - Access key to use when protocol is http/https
+git_key=
+# git_route - Full route to get repo
+git_route=
+# git_branch - Branch to deploy
+git_branch=main
+# repo_user - Repository author name for commits
+repo_user=
+# repo_email - Repository author email for commits
+repo_email=
+# db_host - Database host
+db_host=
+# db_name - Database name
+db_name=
+# db_user - Database user
+db_user=
+# db_pwd - Database password
+db_pwd=
+# search_engine - Allowed search engines are "elasticsearch7" or "opensearch"
+search_engine=
+# search_host - Search engine host (e.x. http://search-engine)
+search_host=
+# search_port - Search engine connection port
+search_port=
+# search_auth - Search need authentication? Allowed values are 1 or 0
+search_auth=
+# search_user - User when search engine needs authentication
+search_user=
+# search_pwd - Password when search engine needs authentication
+search_pwd=
+# base_url - Base url to serve application (e.x. http://localhost/)
+base_url=
+# admin_path - Path to route back office
+admin_path=
+# excluded_on_install - Space separated module names than must be disabled before install. (ex. "Magento_Sales Magento_Cms")
+excluded_on_install=
