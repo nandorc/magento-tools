@@ -4,9 +4,6 @@
 [ ! -f ~/.magetools/src/bootstrap.sh ] && error_message "Can not bootstrap magetools" && exit 1
 source ~/.magetools/src/bootstrap.sh
 
-# Check bin/magento executor
-[ ! -f bin/magento ] && error_message "No ${color_yellow}bin/magento${color_none} found to execute commands" && exit 1
-
 # Get parameters
 declare env_name=default
 declare target_branch=
@@ -51,6 +48,9 @@ while [ -n "${1}" ]; do
     fi
     shift
 done
+
+# Check bin/magento executor
+[ ! -f bin/magento ] && error_message "No ${color_yellow}bin/magento${color_none} found to execute commands" && exit 1
 
 # Upgrade git info
 if [ ${must_pull_repo} -eq 1 ]; then

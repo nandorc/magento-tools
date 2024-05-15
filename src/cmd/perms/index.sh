@@ -5,7 +5,6 @@
 source ~/.magetools/src/bootstrap.sh
 
 # Get parameters
-declare show_help=0
 while [ "${1}" == "--help" ]; do
     if [ "${1}" == "--help" ]; then
         [ ! -f ~/.magetools/src/docs/perms.txt ] && error_message "No help documentation found" && exit 1
