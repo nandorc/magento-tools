@@ -1,4 +1,4 @@
-.tools/bin/mage deploy [options]
+mage deploy [options]
 
 Description:
     This command provides a way to create a deploy changes on a production environment.

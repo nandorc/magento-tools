@@ -1,4 +1,4 @@
-.tools/bin/mage test [options]
+mage test [options]
 
 Description:
     This command execute unit tests and generates reports.
