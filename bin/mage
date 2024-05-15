@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Check .magetools folder
+[ ! -d ~/.magetools ] && echo "ERR~ Magento CLI Tools not found at user folder"
+
+# Get global dependencies
+source ~/.magetools/src/utils/messages.sh
+
+# Get command and action
+declare param=($(echo ${1} | sed -e "s/:/ /"))
+declare command=${param[0]}
+declare action=${param[1]}
+shift
+
+# Validate command
+declare cmd_dir=~/.magetools/src/cmd
+[ -z "${command}" ] && error_message "No command received" && exit 1
+[ ! -d "${cmd_dir}/${command}" ] && error_message "No valid command received" && exit 1
+
+# Validate action
+[ -z "${action}" ] && action="index"
+[ ! -f "${cmd_dir}/${command}/${action}.sh" ] && error_message "No valid action for ${color_yellow}${command}${color_none} command" && exit 1
+
+# Call action
+bash "${cmd_dir}/${command}/${action}.sh" ${@}
+[ ${?} -ne 0 ] && exit 1 || exit 0
