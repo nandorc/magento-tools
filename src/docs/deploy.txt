@@ -1,0 +1,44 @@
+.tools/bin/mage deploy [options]
+
+Description:
+    This command provides a way to create a deploy changes on a production environment.
+
+Options:
+    --branch <branch>
+        Specify git branch which is going to be taken as base for build commit.
+
+    --help
+        Displays this document.
+
+    --name <env_name>
+        Define magento env name for deploy. Default is "default".
+
+    --no-cron
+        Prevents that deploy command makes crontab related operations.
+
+    --no-deps
+        Prevents that deploy command executes package manager related actions.
+
+    --no-disable-maintenance
+        Prevents that deploy command disables maintenance mode on Magento (magento maintenance:disable).
+
+    --no-enable-maintenance
+        Prevents that deploy command enables maintenance mode on Magento (magento maintenance:enable).
+
+    --no-force-pull
+        Prevents that deploy command uses 'git reset' instead of 'git pull' to pull changes from origin.
+
+    --no-git
+        Prevents that deploy command pulls changes from git origin.
+
+    --no-refresh
+        Prevents that deploy command execute refresh actions on Magento (magento indexer:reindex; magento cache:flush).
+
+    --no-stash
+        Prevents that deploy command tries to stash current changes if necessary.
+
+    --no-upgrade
+        Prevents that deploy command execute database upgrade on Magento (magento setup:upgrade).
+
+    --with-fs
+        Specifies when the app is using shared file system between nodes.

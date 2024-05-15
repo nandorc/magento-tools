@@ -22,7 +22,7 @@ declare color_white="\e[97m"
 
 # $1 message
 function custom_message() {
-    echo -e "\n${1}\n"
+    echo -e "${1}"
 }
 
 # $1 message

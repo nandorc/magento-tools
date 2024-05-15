@@ -1,0 +1,29 @@
+.tools/bin/mage test [options]
+
+Description:
+    This command execute unit tests and generates reports.
+
+Options:
+    --help
+        Displays this document.
+
+    --theme <theme-name>
+        Specify theme name which is going to be used for frontend unit tests. It is REQUIRED except if --no-front flag is specified.
+
+    --no-build
+        Prevents that test command build static content and generated classes.
+
+    --no-deps
+        Prevents that test command executes package manager related actions.
+
+    --bypass
+        Prevents that test command stops and exit if any issue is found at unit tests.
+
+    --no-front
+        Prevents that test command executes unit tests related with frontend.
+
+    --no-back
+        Prevents that test command executes unit tests related with backend.
+
+    --no-run
+        Prevents that test command executes unit tests.
