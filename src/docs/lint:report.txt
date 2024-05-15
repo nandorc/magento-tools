@@ -1,4 +1,4 @@
-.tools/bin/mage lint:report [options]
+mage lint:report [options]
 
 Description:
     This command generates linters reports.

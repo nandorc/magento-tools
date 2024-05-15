@@ -1,4 +1,4 @@
-.tools/bin/mage perms [options]
+mage perms [options]
 
 Description:
     This command assign recommended files and folders permissions and ownership.

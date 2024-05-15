@@ -1,4 +1,4 @@
-.tools/bin/mage deliver [options]
+mage deliver [options]
 
 Description:
     This command provides a way to deliver changes from a branch on a developer environment.
