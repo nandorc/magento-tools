@@ -1,4 +1,4 @@
-.tools/bin/mage lint:test [options] <paths...>
+mage lint:test [options] <paths...>
 
 Description:
     This command execute linters on specified <paths...>. If no <paths...> received it will execute linters at 'app/code' and 'app/design' paths.
