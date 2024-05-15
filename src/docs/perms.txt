@@ -1,0 +1,14 @@
+.tools/bin/mage perms [options]
+
+Description:
+    This command assign recommended files and folders permissions and ownership.
+
+    Ownership is recommended to be :www-data to provide access to Web Server.
+
+    Files permission must be 0664 except for executable files wich has to be 0775.
+
+    Folders permission must be 2775 to keep user group when creating new files inside.
+
+Options:
+    --help
+        Displays this document.
