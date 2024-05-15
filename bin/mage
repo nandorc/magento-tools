@@ -1,10 +1,12 @@
 #!/bin/bash
 
-# Check .magetools folder
-[ ! -d ~/.magetools ] && echo "ERR~ Magento CLI Tools not found at user folder"
+# Bootstrap
+[ ! -f ~/.magetools/src/bootstrap.sh ] && echo "ERR~ Can not bootstrap magetools" && exit 1
+source ~/.magetools/src/bootstrap.sh
 
-# Get global dependencies
-source ~/.magetools/src/utils/messages.sh
+# Check commands folder
+[ ! -d ~/.magetools/src/cmd ] && error_message "Commands folder not found" && exit 1
+declare cmd_dir=~/.magetools/src/cmd
 
 # Get command and action
 declare param=($(echo ${1} | sed -e "s/:/ /"))
@@ -13,7 +15,6 @@ declare action=${param[1]}
 shift
 
 # Validate command
-declare cmd_dir=~/.magetools/src/cmd
 [ -z "${command}" ] && error_message "No command received" && exit 1
 [ ! -d "${cmd_dir}/${command}" ] && error_message "No valid command received" && exit 1
 

@@ -1,0 +1,11 @@
+.tools/bin/mage lint:report [options]
+
+Description:
+    This command generates linters reports.
+
+Options:
+    --help
+        Displays this document.
+
+    --no-deps
+        Prevents that lint:report command executes package manager related actions.
