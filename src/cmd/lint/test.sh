@@ -4,9 +4,6 @@
 [ ! -f ~/.magetools/src/bootstrap.sh ] && error_message "Can not bootstrap magetools" && exit 1
 source ~/.magetools/src/bootstrap.sh
 
-# Check bin/magento executor
-[ ! -f bin/magento ] && error_message "No bin/magento found to execute commands" && exit 1
-
 # Get parameters
 declare must_update_deps=1
 declare must_bypass=0
@@ -21,6 +18,9 @@ while [ "${1}" == "--no-deps" ] || [ "${1}" == "--bypass" ] || [ "${1}" == "--he
     fi
     shift
 done
+
+# Check bin/magento executor
+[ ! -f bin/magento ] && error_message "No bin/magento found to execute commands" && exit 1
 
 # Check if valid paths were received
 declare test_paths=($(echo ${@}))

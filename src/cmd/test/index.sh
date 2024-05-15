@@ -4,9 +4,6 @@
 [ ! -f ~/.magetools/src/bootstrap.sh ] && error_message "Can not bootstrap magetools" && exit 1
 source ~/.magetools/src/bootstrap.sh
 
-# Check bin/magento executor
-[ ! -f bin/magento ] && error_message "No bin/magento found to execute commands" && exit 1
-
 # Get parameters
 declare theme=""
 declare must_build_files=1
@@ -37,6 +34,9 @@ while [ -n "${1}" ]; do
     fi
     shift
 done
+
+# Check bin/magento executor
+[ ! -f bin/magento ] && error_message "No bin/magento found to execute commands" && exit 1
 
 # Update deps
 if [ ${must_update_deps} -eq 1 ]; then
