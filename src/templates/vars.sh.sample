@@ -36,5 +36,7 @@ search_pwd=
 base_url=
 # admin_path - Path to route back office
 admin_path=
+# magento_version - specify Magento version to use when installing a fresh new application. Default is '2.4.6'
+magento_version=
 # excluded_on_install - Space separated module names than must be disabled before install. (ex. "Magento_Sales Magento_Cms")
 excluded_on_install=

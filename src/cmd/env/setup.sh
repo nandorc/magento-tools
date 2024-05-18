@@ -13,6 +13,7 @@ declare env_fs=0
 declare env_cron=0
 declare env_install=1
 declare env_use_repo=1
+declare env_must_clean_db=1
 while [ -n "${1}" ]; do
     if [ "${1}" == "--help" ]; then
         [ ! -f ~/.magetools/src/docs/env:setup.txt ] && error_message "No help documentation found" && exit 1
@@ -37,6 +38,8 @@ while [ -n "${1}" ]; do
         env_install=0
     elif [ "${1}" == "--no-repo" ]; then
         env_use_repo=0
+    elif [ "${1}" == "--no-clean-db" ]; then
+        env_must_clean_db=0
     fi
     shift
 done
@@ -69,6 +72,7 @@ declare search_user=
 declare search_pwd=
 declare base_url=
 declare admin_path=
+declare magento_version=
 declare excluded_on_install=
 if [ -n "${env_vars_path}" ]; then
     source "${env_vars_path}"
@@ -118,8 +122,9 @@ if [ -n "${git_repository}" ]; then
     [ ${?} -ne 0 ] && error_message "Can't install composer dependencies" && exit 1
     must_set_repo_user=1
 elif [ ! -d /magento-app/${env_name}/site/.git ]; then
+    [ -z "${magento_version}" ] && magento_version=2.4.6
     cd /magento-app/${env_name}/site
-    composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.6 .
+    composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition="${magento_version}" .
     [ ${?} -ne 0 ] && error_message "Can't create new Magento project" && exit 1
     if [ ! -f .gitignore ]; then
         cp -v ~/.magetools/src/templates/.gitignore.sample ./.gitignore
@@ -190,7 +195,10 @@ if [ ${env_install} -eq 1 ] && [ ! -f /magento-app/${env_name}/fs/app/etc/env.ph
         [ -z "${search_pwd}" ] && error_message "search_pwd must be defined if search_auth is 1" && exit 1
         mage_install_cmd="${mage_install_cmd} --${search_engine_prefix}-password='${search_pwd}'"
     fi
-    mage_install_cmd="${mage_install_cmd} --cleanup-database --no-interaction"
+    if [ ${env_must_clean_db} -eq 1 ]; then
+        mage_install_cmd="${mage_install_cmd} --cleanup-database"
+    fi
+    mage_install_cmd="${mage_install_cmd} --no-interaction"
     if [ -n "${excluded_on_install}" ]; then
         bin/magento module:disable -c ${excluded_on_install}
         [ ${?} -ne 0 ] && error_message "Can't disable on install excluded modules" && exit 1
