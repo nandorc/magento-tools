@@ -1,0 +1,9 @@
+mage env:create-vars [options] <name>
+
+Description:
+    This command provides a way to create a new vars file for a magento env in the current directory. The name assigned to the file is based in the following template:
+        vars-<name>.sh
+
+Options:
+    --help
+        Displays this document.
