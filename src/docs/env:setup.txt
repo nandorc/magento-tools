@@ -13,6 +13,9 @@ Options:
     --mode <env_mode>
         This value defines the deploy mode that will be used in the env. It must be "dev" or "prod". Default value is "dev".
 
+    --no-clean-db
+        Prevents env to clean database when installing the application. Could be use to "recreate" an env without affecting database.
+
     --no-install
         Prevents env to execute install commands. Could be use to "recreate" an env without affecting database.
 

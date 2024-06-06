@@ -1,2 +1,31 @@
+# Config files
+/app/etc/env.php
+/auth.json
+
+# Generated code
+/generated/*
+
+# Media files
+/pub/media/*
+
+# Static files
+/pub/static/*
+
+# Var files
+/var/*
+
 # PHP dependencies
 /vendor
+
+# Apache config
+!/generated/.htaccess
+!/pub/media/custom_options/.htaccess
+!/pub/media/customer/.htaccess
+!/pub/media/customer_address/.htaccess
+!/pub/media/downloadable/.htaccess
+!/pub/media/import/.htaccess
+!/pub/media/sitemap/.htaccess
+!/pub/media/theme_customization/.htaccess
+!/pub/media/.htaccess
+!/pub/static/.htaccess
+!/var/.htaccess
