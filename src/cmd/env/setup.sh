@@ -5,7 +5,6 @@
 source ~/.magetools/src/bootstrap.sh
 
 # Get env identity
-declare env_vars_path=
 declare env_name=default
 declare env_user=${USER}
 declare env_mode=dev
@@ -25,11 +24,6 @@ while [ -n "${1}" ]; do
         ([ -z "${2}" ] || [ -n "$(echo ${2} | grep "^-")" ]) && error_message "Mode can not be empty" && exit 1
         [ "${2}" != "dev" ] && [ "${2}" != "prod" ] && error_message "Mode must be dev or prod" && exit 1
         env_mode=${2} && shift
-    elif [ "${1}" == "--vars" ]; then
-        ([ -z "${2}" ] || [ -n "$(echo ${2} | grep "^-")" ]) && error_message "Vars can not be empty" && exit 1
-        [ -z "$(echo ${2} | grep "^/")" ] && error_message "Vars must be an absolute path" && exit 1
-        [ ! -f "${2}" ] && error_message "File not found at ${2} for vars" && exit 1
-        env_vars_path=${2} && shift
     elif [ "${1}" == "--with-fs" ]; then
         env_fs=1
     elif [ "${1}" == "--with-cron" ]; then
@@ -44,8 +38,7 @@ while [ -n "${1}" ]; do
     shift
 done
 
-# Check env variables and set default values
-[ -z "${env_vars_path}" ] && error_message "Vars must be defined using --vars option" && exit 1
+# Set default values
 env_name=$(echo "${env_name}" | sed -e "s| |-|")
 if [ -z "${env_user}" ]; then
     echo -e "OS user name: \c" && read env_user
@@ -72,12 +65,11 @@ declare search_user=
 declare search_pwd=
 declare base_url=
 declare admin_path=
-declare magento_version=
-declare php_version=
+declare magento_version=2.4.6
+declare php_version=8.1
 declare excluded_on_install=
-if [ -n "${env_vars_path}" ]; then
-    source "${env_vars_path}"
-fi
+[ ! -f ~/.magetools/var/vars-"${env_name}".sh ] && error_message "Can't find vars file for env with name ${color_yellow}${env_name}${color_none}" && exit 1
+source ~/.magetools/var/vars-"${env_name}".sh
 
 # Create and move to env folder
 if [ ! -d /magento-app/${env_name} ]; then
@@ -123,7 +115,6 @@ if [ -n "${git_repository}" ]; then
     [ ${?} -ne 0 ] && error_message "Can't install composer dependencies" && exit 1
     must_set_repo_user=1
 elif [ ! -d /magento-app/${env_name}/site/.git ]; then
-    [ -z "${magento_version}" ] && magento_version=2.4.6
     cd /magento-app/${env_name}/site
     composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition="${magento_version}" .
     [ ${?} -ne 0 ] && error_message "Can't create new Magento project" && exit 1
@@ -238,7 +229,6 @@ sudo touch ${available_host_path}
 sudo chown -v ${env_user}:${env_user} ${available_host_path}
 
 # Fill host file content
-[ -z "${php_version}" ] && php_version=8.1
 echo "upstream fastcgi_backend {" >${available_host_path}
 echo "    server unix:/run/php/php${php_version}-fpm.sock;" >>${available_host_path}
 echo "}" >>${available_host_path}

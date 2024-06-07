@@ -12,6 +12,7 @@ env-move() {
         env_name="${2}"
     fi
     [ -z "${env_name}" ] && echo "ERR~ No env-name provided" && return 1
+    env_name=$(echo "${env_name}" | sed -e "s| |-|")
     if [ ${must_switch} -eq 1 ]; then
         mage env:switch "${env_name}"
         [ ${?} -ne 0 ] && return 1
