@@ -73,6 +73,7 @@ declare search_pwd=
 declare base_url=
 declare admin_path=
 declare magento_version=
+declare php_version=
 declare excluded_on_install=
 if [ -n "${env_vars_path}" ]; then
     source "${env_vars_path}"
@@ -237,8 +238,9 @@ sudo touch ${available_host_path}
 sudo chown -v ${env_user}:${env_user} ${available_host_path}
 
 # Fill host file content
+[ -z "${php_version}" ] && php_version=8.1
 echo "upstream fastcgi_backend {" >${available_host_path}
-echo "    server unix:/run/php/php8.1-fpm.sock;" >>${available_host_path}
+echo "    server unix:/run/php/php${php_version}-fpm.sock;" >>${available_host_path}
 echo "}" >>${available_host_path}
 echo "" >>${available_host_path}
 echo "server {" >>${available_host_path}
