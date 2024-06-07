@@ -13,6 +13,12 @@ fi
 # Get env name
 declare env_name=${1}
 [ -z "${env_name}" ] && error_message "env_name must be provided" && exit 1
+env_name=$(echo "${env_name}" | sed -e "s| |-|")
+
+# Declare and load env app variables
+declare php_version=8.1
+[ ! -f ~/.magetools/var/vars-"${env_name}".sh ] && error_message "Can't find vars file for env with name ${color_yellow}${env_name}${color_none}" && exit 1
+source ~/.magetools/var/vars-"${env_name}".sh
 
 # Check host file
 declare must_change_host=0
@@ -46,7 +52,7 @@ if [ ${must_change_host} -eq 1 ]; then
     sudo rm -rfv ${enabled_host_path}/00-magento*
     sudo ln -v -s ${available_host_path}/${hostfile_name} ${enabled_host_path}/
     sudo service nginx restart
-    sudo service php8.1-fpm restart
+    sudo service "php${php_version}-fpm" restart
 fi
 
 # End script
