@@ -128,6 +128,8 @@ rm -rfv generated/*/*
 
 # Upgrade config
 if [ ${must_upgrade} -eq 1 ]; then
+    bin/magento app:config:import --no-interaction
+    [ ${?} -ne 0 ] && echo "ERR~ Can't import app config" && exit 1
     bin/magento setup:upgrade --no-interaction
     [ ${?} -ne 0 ] && error_message "Can't upgrade app config" && exit 1
 fi
