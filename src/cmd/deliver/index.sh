@@ -146,6 +146,8 @@ fi
 
 # Reindex and flush cache
 if [ ${must_refresh} -eq 1 ]; then
+    bin/magento indexer:reset
+    [ ${?} -ne 0 ] && echo "ERR~ Can't reset indexers" && exit 1
     bin/magento indexer:reindex
     [ ${?} -ne 0 ] && error_message "Can't execute reindex operation" && exit 1
     bin/magento cache:flush
