@@ -65,7 +65,7 @@ declare search_user=
 declare search_pwd=
 declare base_url=
 declare admin_path=
-declare magento_version=2.4.6
+declare magento_version=2.4.7
 declare php_version=8.3
 declare excluded_on_install=
 [ ! -f ~/.magetools/var/vars-"${env_name}".sh ] && error_message "Can't find vars file for env with name ${color_yellow}${env_name}${color_none}" && exit 1
