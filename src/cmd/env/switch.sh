@@ -16,7 +16,7 @@ declare env_name=${1}
 env_name=$(echo "${env_name}" | sed -e "s| |-|")
 
 # Declare and load env app variables
-declare php_version=8.1
+declare php_version=8.3
 [ ! -f ~/.magetools/var/vars-"${env_name}".sh ] && error_message "Can't find vars file for env with name ${color_yellow}${env_name}${color_none}" && exit 1
 source ~/.magetools/var/vars-"${env_name}".sh
 
