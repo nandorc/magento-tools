@@ -1,0 +1,9 @@
+mage env:vars-duplicate [options] <origin> <target>
+
+Description:
+    This command provides a way to duplicate an existing vars file for a magento env named <origin> as a new vars file named <target>.
+    If <target> is an existing vars file, it'll be replaced by the content in <origin> vars file.
+
+Options:
+    --help
+        Displays this document.
