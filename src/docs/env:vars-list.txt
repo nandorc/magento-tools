@@ -1,0 +1,8 @@
+mage env:vars-list [options] <name>
+
+Description:
+    This command provides a way to list existing vars files for a magento envs.
+
+Options:
+    --help
+        Displays this document.
