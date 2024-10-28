@@ -10,6 +10,9 @@ Options:
     --help
         Displays this document.
 
+    --languages <languages>
+        Specify a space separated list of languages to be used when deploying static files. (ex. "es_ES en_US")
+
     --name <env_name>
         Define magento env name for deploy. Default is "default".
 
