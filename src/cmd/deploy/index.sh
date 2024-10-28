@@ -18,6 +18,7 @@ declare must_enable_maintenance=1
 declare must_disable_maintenance=1
 declare use_fs=0
 declare use_cron=1
+declare languages=
 while [ -n "${1}" ]; do
     if [ "${1}" == "--help" ]; then
         [ ! -f ~/.magetools/src/docs/deploy.txt ] && error_message "No help documentation found" && exit 1
@@ -48,6 +49,9 @@ while [ -n "${1}" ]; do
         use_stash=0
     elif [ "${1}" == "--no-cron" ]; then
         use_cron=0
+    elif [ "${1}" == "--languages" ]; then
+        ([ -z "${2}" ] || [ -n "$(echo "${2}" | grep "^-")" ]) && error_message "languages must be defined like this 'es_ES en_US'" && exit 1
+        languages="${2}" && shift
     fi
     shift
 done
@@ -106,20 +110,6 @@ if [ -n "${target_branch}" ] && [ ${must_pull_repo} -eq 1 ] && [ ${has_remote_or
     fi
 fi
 
-# Update composer dependencies
-if [ ${must_install_deps} -eq 1 ]; then
-    composer install --no-plugins --no-scripts
-    [ ${?} -ne 0 ] && error_message "Can't update composer dependencies" && exit 1
-    git restore .
-    [ ${?} -ne 0 ] && error_message "Can't restore no commited changes after dependencies update" && exit 1
-fi
-
-# Restore changes from stash
-if [ ${use_stash} -eq 1 ] && [ -n "$(git stash list)" ]; then
-    git stash pop
-    [ ${?} -ne 0 ] && error_message "Can't restore changes from stash" && exit 1
-fi
-
 # Unlink cache folders
 if [ ${use_fs} -eq 1 ]; then
     rm -rfv var/cache/*
@@ -135,6 +125,20 @@ rm -rfv var/view_preprocessed/*
 rm -rfv pub/static/*/*
 rm -rfv generated/*/*
 
+# Update composer dependencies
+if [ ${must_install_deps} -eq 1 ]; then
+    composer install --no-plugins --no-scripts --no-dev
+    [ ${?} -ne 0 ] && error_message "Can't update composer dependencies" && exit 1
+    git restore .
+    [ ${?} -ne 0 ] && error_message "Can't restore no commited changes after dependencies update" && exit 1
+fi
+
+# Restore changes from stash
+if [ ${use_stash} -eq 1 ] && [ -n "$(git stash list)" ]; then
+    git stash pop
+    [ ${?} -ne 0 ] && error_message "Can't restore changes from stash" && exit 1
+fi
+
 # Show current revision version
 echo -e "Current revision commit: \c"
 git rev-parse --short HEAD
@@ -147,8 +151,14 @@ git rev-list --count HEAD
 declare content_version=$(git rev-list --count HEAD)
 bin/magento setup:di:compile
 [ ${?} -ne 0 ] && error_message "Can't generate dynamic classes" && exit 1
-bin/magento setup:static-content:deploy --content-version=${content_version} --jobs=3 --exclude-theme=Magento/luma -f es_CO en_US
+bin/magento setup:static-content:deploy --content-version=${content_version} --jobs=3 -f ${languages}
 [ ${?} -ne 0 ] && error_message "Can't generate static content" && exit 1
+
+# Optimize composer dependencies
+if [ ${must_install_deps} -eq 1 ]; then
+    composer install --no-plugins --no-scripts --no-dev --apcu-autoloader --optimize-autoloader
+    [ ${?} -ne 0 ] && error_message "Can't update composer dependencies" && exit 1
+fi
 
 # Upgrade config
 if [ ${must_upgrade} -eq 1 ]; then
