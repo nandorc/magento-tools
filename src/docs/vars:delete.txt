@@ -1,4 +1,4 @@
-mage env:vars-delete [options] <name>
+mage vars:delete [options] <name>
 
 Description:
     This command provides a way to delete an existing vars file for a magento env named <name>.
