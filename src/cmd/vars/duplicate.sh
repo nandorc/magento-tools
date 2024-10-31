@@ -6,12 +6,12 @@ source ~/.magetools/src/bootstrap.sh
 
 # Check help flag
 if [ "${1}" == "--help" ]; then
-    [ ! -f ~/.magetools/src/docs/env:vars-duplicate.txt ] && error_message "No help documentation found" && exit 1
-    (cat ~/.magetools/src/docs/env:vars-duplicate.txt | less -c) && exit 0
+    [ ! -f ~/.magetools/src/docs/vars:duplicate.txt ] && error_message "No help documentation found" && exit 1
+    (cat ~/.magetools/src/docs/vars:duplicate.txt | less -c) && exit 0
 fi
 
 # Check final args
-[ ${#} -ne 2 ] && error_message "Syntax error when executing ${color_yellow}env:vars-duplicate${color_none} type ${color_yellow}mage env:vars-duplicate --help${color_none} to see the right syntax" && exit 1
+[ ${#} -ne 2 ] && error_message "Syntax error when executing ${color_yellow}vars:duplicate${color_none} type ${color_yellow}mage vars:duplicate --help${color_none} to see the right syntax" && exit 1
 
 # Check env names
 [ -z "${1}" ] && error_message "Env origin name must be provided" && exit 1

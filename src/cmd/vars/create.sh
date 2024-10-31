@@ -8,8 +8,8 @@ source ~/.magetools/src/bootstrap.sh
 declare must_force=0
 while [ "${1}" == "--help" ] || [ "${1}" == "--force" ]; do
     if [ "${1}" == "--help" ]; then
-        [ ! -f ~/.magetools/src/docs/env:vars-create.txt ] && error_message "No help documentation found" && exit 1
-        (cat ~/.magetools/src/docs/env:vars-create.txt | less -c) && exit 0
+        [ ! -f ~/.magetools/src/docs/vars:create.txt ] && error_message "No help documentation found" && exit 1
+        (cat ~/.magetools/src/docs/vars:create.txt | less -c) && exit 0
     elif [ "${1}" == "--force" ]; then
         must_force=1
         shift
@@ -17,7 +17,7 @@ while [ "${1}" == "--help" ] || [ "${1}" == "--force" ]; do
 done
 
 # Check final args
-[ ${#} -ne 1 ] && error_message "Syntax error when executing ${color_yellow}env:vars-create${color_none} type ${color_yellow}mage env:vars-create --help${color_none} to see the right syntax" && exit 1
+[ ${#} -ne 1 ] && error_message "Syntax error when executing ${color_yellow}vars:create${color_none} type ${color_yellow}mage vars:create --help${color_none} to see the right syntax" && exit 1
 
 # Check env name
 [ -z "${1}" ] && error_message "Env name must be provided" && exit 1
