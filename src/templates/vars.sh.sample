@@ -1,3 +1,98 @@
+##################################
+# Variables to config GIT config #
+##################################
+
+# git_use_stash
+#  Defines if stash must be used when pulling changes
+#  Value must be 0 or 1. Default is 0.
+git_use_stash=0
+
+# git_pull_mode
+#  Defines the way git must pull changes from origin.
+#  Value must be:
+#    "none" - Indicates to no pull changes from origin.
+#    "soft" - Indicates to pull changes using git pull.
+#    "hard" - Indicates to pull changes using git reset.
+#  Default value is "hard".
+git_pull_mode="hard"
+
+# git_deploy_branch
+#  Defines branch to be used when deploying.
+#  It must be a valid branch name. Ex. develop.
+#  If not defined, it'll deploy using current branch.
+#git_deploy_branch=develop
+
+######################################
+# Variables to config Magento config #
+######################################
+
+# m2_use_cron
+#  Defines if Magento must use cronjob.
+#  It's related with magento commands:
+#   bin/magento cron:install -f
+#   bin/magento cron:remove
+#  Value must be 0 or 1. Default is 1.
+m2_use_cron=1
+
+# m2_install_deps
+#  Defines if Magento must intall dependencies with composer
+#  Value must be 0 or 1. Default is 1
+m2_install_deps=1
+
+# m2_build_files
+#  Defines if Magento must build files and deploy static-content
+#  It's related with following commands:
+#   bin/magento setup:di:compile
+#   bin/magento setup:static-content:deploy
+#  Value must be 0 or 1. Default is 1.
+m2_build_files=1
+
+# m2_build_languages
+#  Defines languages to use when deploying static content
+#  Value must be a valid group of languages. Ex. "es_ES en_US"
+#  Default value is empty ("") so Magento will deploy content based on themes config
+m2_build_languages=""
+
+# m2_upgrade
+#  Defines if Magento must upgrade config
+#  It's related with
+#   bin/magento app:config:import
+#   bin/magento setup:upgrade
+#  Value must be 0 or 1. Default is 1.
+m2_upgrade=1
+
+# m2_reindex
+#  Defines if magento must reindex data
+#  It's related with
+#   bin/magento indexer:reset
+#   bin/magento indexer:reindex
+#  Value must be 0 or 1. Default is 1.
+m2_reindex=1
+
+# m2_clean_folders
+#  Defines if Magento must clean content in:
+#   var/view_preprocessed
+#   pub/static
+#   generated
+#  Value must be 0 or 1. Default is 1.
+m2_clean_folders=1
+
+# m2_flush_cache
+#  Defines if Magento must flush cache when deploying.
+#  Value must be 0 or 1. Default is 1.
+m2_flush_cache=1
+
+# m2_enable_maintenance
+#  Defines if Magento must execute bin/magento maintenance:enable before deploying.
+#  Value must be 0 or 1. Default is 1.
+m2_enable_maintenance=1
+
+# m2_disable_maintenance
+#  Defines if Magento must execute bin/magento maintenance:disable after deploying.
+#  Value must be 0 or 1. Default is 1.
+m2_disable_maintenance=1
+
+
 # git_protocol - Connection protocol must be http, https or ssh
 git_protocol=ssh
 # git_user - User to access when protocol is http/https

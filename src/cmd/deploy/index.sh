@@ -4,198 +4,178 @@
 [ ! -f ~/.magetools/src/bootstrap.sh ] && error_message "Can not bootstrap magetools" && exit 1
 source ~/.magetools/src/bootstrap.sh
 
-# Get parameters
-declare env_name=default
-declare target_branch=
-declare must_pull_repo=1
-declare must_force_pull=1
-declare has_remote_origin=0
-declare use_stash=1
-declare must_install_deps=1
-declare must_upgrade=1
-declare must_refresh=1
-declare must_enable_maintenance=1
-declare must_disable_maintenance=1
-declare use_fs=0
-declare use_cron=1
-declare languages=
-while [ -n "${1}" ]; do
-    if [ "${1}" == "--help" ]; then
-        [ ! -f ~/.magetools/src/docs/deploy.txt ] && error_message "No help documentation found" && exit 1
-        (cat ~/.magetools/src/docs/deploy.txt | less -c) && exit 0
-    elif [ "${1}" == "--branch" ]; then
-        ([ -z "${2}" ] || [ -n "$(echo "${2}" | grep "^-")" ]) && error_message "branch must be defined" && exit 1
-        target_branch="${2}" && shift
-    elif [ "${1}" == "--name" ]; then
-        ([ -z "${2}" ] || [ -n "$(echo "${2}" | grep "^-")" ]) && error_message "name must be defined" && exit 1
-        env_name=$(echo "${2}" | sed -e "s| |-|") && shift
-    elif [ "${1}" == "--no-git" ]; then
-        must_pull_repo=0
-    elif [ "${1}" == "--no-force-pull" ]; then
-        must_force_pull=0
-    elif [ "${1}" == "--no-deps" ]; then
-        must_install_deps=0
-    elif [ "${1}" == "--no-upgrade" ]; then
-        must_upgrade=0
-    elif [ "${1}" == "--no-refresh" ]; then
-        must_refresh=0
-    elif [ "${1}" == "--no-enable-maintenance" ]; then
-        must_enable_maintenance=0
-    elif [ "${1}" == "--no-disable-maintenance" ]; then
-        must_disable_maintenance=0
-    elif [ "${1}" == "--with-fs" ]; then
-        use_fs=1
-    elif [ "${1}" == "--no-stash" ]; then
-        use_stash=0
-    elif [ "${1}" == "--no-cron" ]; then
-        use_cron=0
-    elif [ "${1}" == "--languages" ]; then
-        ([ -z "${2}" ] || [ -n "$(echo "${2}" | grep "^-")" ]) && error_message "languages must be defined like this 'es_ES en_US'" && exit 1
-        languages="${2}" && shift
-    fi
-    shift
-done
+# Declare global variables
+declare cmd_name="deploy"
+declare env_name=$(bash ~/.magetools/src/scripts/get-env-name.sh ${@})
+declare has_git=1
+declare git_has_remote=0
+declare git_use_stash
+declare git_pull_mode
+declare git_deploy_branch
+declare m2_use_cron
+declare m2_install_deps
+declare m2_build_files
+declare m2_build_languages
+declare m2_upgrade
+declare m2_reindex
+declare m2_clean_folders
+declare m2_flush_cache
+declare m2_enable_maintenance
+declare m2_disable_maintenance
+
+# Fragment: show-help
+source ~/.magetools/src/fragments/show-help.sh
+
+# Validate env vars file and env folder
+[ ! -f ~/.magetools/var/vars-${env_name}.sh ] && error_message "Vars file not found for env named ${color_yellow}${env_name}${color_none}" && exit 1
+[ ! -d /magento-app/${env_name} ] && error_message "Main folder not found for env named ${color_yellow}${env_name}${color_none}" && exit 1
+
+# Load env variables
+source ~/.magetools/var/vars-${env_name}.sh
+
+# Fragment: validate-options
+source ~/.magetools/src/fragments/validate-options.sh
+
+# Set fallback values
+[ -z "${git_use_stash}" ] && git_use_stash=0
+[ -z "${git_pull_mode}" ] && git_pull_mode="hard"
+[ -z "${git_deploy_branch}" ] && git_deploy_branch=""
+[ -z "${m2_use_cron}" ] && m2_use_cron=1
+[ -z "${m2_install_deps}" ] && m2_install_deps=1
+[ -z "${m2_build_files}" ] && m2_build_files=1
+[ -z "${m2_build_languages}" ] && m2_build_languages=""
+[ -z "${m2_upgrade}" ] && m2_upgrade=1
+[ -z "${m2_reindex}" ] && m2_reindex=1
+[ -z "${m2_clean_folders}" ] && m2_clean_folders=1
+[ -z "${m2_flush_cache}" ] && m2_flush_cache=1
+[ -z "${m2_enable_maintenance}" ] && m2_enable_maintenance=1
+[ -z "${m2_disable_maintenance}" ] && m2_disable_maintenance=1
+
+# Move to site directory
+[ ! -d /magento-app/${env_name}/site ] && error_message "Site folder not found for env named ${color_yellow}${env_name}${color_none}" && exit 1
+cd /magento-app/${env_name}/site
 
 # Check bin/magento executor
 [ ! -f bin/magento ] && error_message "No bin/magento found to execute commands" && exit 1
 
-# Upgrade git info
-if [ ${must_pull_repo} -eq 1 ]; then
-    git fetch
-    [ -n "$(git remote 2>/dev/null | grep origin)" ] && has_remote_origin=1
-    [ ${has_remote_origin} -eq 1 ] && git remote prune origin
-fi
+# Check if git repo
+[ ! -d .git ] && has_git=0
 
-# Stash current changes
-if [ ${use_stash} -eq 1 ]; then
-    git status -s
-    [ ${?} -ne 0 ] && error_message "Can't get current git status" && exit 1
-    [ -n "$(git stash list)" ] && error_message "Can't create a new stash if there is an existent one" && exit 1
-    git stash push -u
-    [ ${?} -ne 0 ] && error_message "Can't stash current changes" && exit 1
+# Upgrade git info
+if [ ${has_git} -eq 1 ]; then
+    git fetch
+    [ -n "$(git remote 2>/dev/null | grep origin)" ] && git_has_remote=1
+    [ ${git_has_remote} -eq 1 ] && git remote prune origin
 fi
 
 # Enable maintenance
-if [ ${must_enable_maintenance} -eq 1 ]; then
+if [ ${m2_enable_maintenance} -eq 1 ]; then
     bin/magento maintenance:enable
     [ ${?} -ne 0 ] && error_message "Can't enable maintenance mode" && exit 1
 fi
 
 # Remove crontab
-if [ ${use_cron} -eq 1 ]; then
+if [ ${m2_use_cron} -eq 1 ]; then
     bin/magento cron:remove
     [ ${?} -ne 0 ] && error_message "Can't remove crontab" && exit 1
 fi
 
 # Initial cache flush
-if [ ${must_refresh} -eq 1 ]; then
+if [ ${m2_flush_cache} -eq 1 ]; then
     bin/magento cache:flush
     [ ${?} -ne 0 ] && error_message "Can't flush cache" && exit 1
 fi
 
 # Switch to target branch
-if [ -n "${target_branch}" ]; then
-    git switch "${target_branch}"
-    [ ${?} -ne 0 ] && error_message "Can't switch to branch with name ${target_branch}" && exit 1
+if [ ${has_git} -eq 1 ] && [ -n "${git_deploy_branch}" ]; then
+    git switch "${git_deploy_branch}"
+    [ ${?} -ne 0 ] && error_message "Can't switch to branch with name ${git_deploy_branch}" && exit 1
+fi
+
+# Show current git status
+if [ ${has_git} -eq 1 ]; then
+    git status
+    [ ${?} -ne 0 ] && error_message "Can't get current git status" && exit 1
 fi
 
 # Pull changes from origin
-if [ -n "${target_branch}" ] && [ ${must_pull_repo} -eq 1 ] && [ ${has_remote_origin} -eq 1 ]; then
-    if [ ${must_force_pull} -eq 1 ]; then
-        git reset --hard "origin/${target_branch}"
-        [ ${?} -ne 0 ] && error_message "Can't force pull branch ${target_branch} from origin" && exit 1
-    else
+if [ ${has_git} -eq 1 ] && [ ${git_has_remote} -eq 1 ] && [ -n "${git_deploy_branch}" ]; then
+    if [ -n "$(git status -s)" ]; then
+        [ ${git_use_stash} -eq 0 ] && error_message "Can't pull data. Pending data to commit found in repo. Review env files or set git_use_stash param to 1 or use --use-stash flag to try to save and re-apply pending changes." && exit 1
+        [ -n "$(git stash list)" ] && error_message "Can't create a new stash if there is an existent one" && exit 1
+        git stash push -u
+        [ ${?} -ne 0 ] && error_message "Can't stash current changes" && exit 1
+    fi
+    if [ "${git_pull_mode}" == "hard" ]; then
+        git reset --hard "origin/${git_deploy_branch}"
+        [ ${?} -ne 0 ] && error_message "Can't force pull branch ${git_deploy_branch} from origin" && exit 1
+    elif [ "${git_pull_mode}" == "soft" ]; then
         git pull
-        [ ${?} -ne 0 ] && error_message "Can't pull branch ${target_branch} from origin" && exit 1
+        [ ${?} -ne 0 ] && error_message "Can't pull branch ${git_deploy_branch} from origin" && exit 1
+    fi
+    if [ ${git_use_stash} -eq 1 ] && [ -n "$(git stash list)" ]; then
+        git stash pop
+        [ ${?} -ne 0 ] && error_message "Can't restore changes from stash" && exit 1
     fi
 fi
 
-# Unlink cache folders
-if [ ${use_fs} -eq 1 ]; then
-    rm -rfv var/cache/*
-    rm -rfv var/cache
-    rm -rfv var/page_cache/*
-    rm -rfv var/page_cache
-    rm -rfv pub/static/_cache/*
-    rm -rfv pub/static/_cache
-fi
-
 # Clean folders
-rm -rfv var/view_preprocessed/*
-rm -rfv pub/static/*/*
-rm -rfv generated/*/*
+if [ ${m2_clean_folders} -eq 1 ]; then
+    rm -rfv var/view_preprocessed/*
+    rm -rfv pub/static/*/*
+    rm -rfv generated/*/*
+fi
 
 # Update composer dependencies
-if [ ${must_install_deps} -eq 1 ]; then
+if [ ${m2_install_deps} -eq 1 ]; then
     composer install --no-plugins --no-scripts --no-dev
     [ ${?} -ne 0 ] && error_message "Can't update composer dependencies" && exit 1
-    git restore .
-    [ ${?} -ne 0 ] && error_message "Can't restore no commited changes after dependencies update" && exit 1
 fi
-
-# Restore changes from stash
-if [ ${use_stash} -eq 1 ] && [ -n "$(git stash list)" ]; then
-    git stash pop
-    [ ${?} -ne 0 ] && error_message "Can't restore changes from stash" && exit 1
-fi
-
-# Show current revision version
-echo -e "Current revision commit: \c"
-git rev-parse --short HEAD
-[ ${?} -ne 0 ] && error_message "Can't get current revision commit" && exit 1
-echo -e "Current revision id: \c"
-git rev-list --count HEAD
-[ ${?} -ne 0 ] && error_message "Can't get current revision id" && exit 1
 
 # Build files
-declare content_version=$(git rev-list --count HEAD)
-bin/magento setup:di:compile
-[ ${?} -ne 0 ] && error_message "Can't generate dynamic classes" && exit 1
-bin/magento setup:static-content:deploy --content-version=${content_version} --jobs=3 -f ${languages}
-[ ${?} -ne 0 ] && error_message "Can't generate static content" && exit 1
+if [ ${m2_build_files} -eq 1 ]; then
+    bin/magento setup:di:compile
+    [ ${?} -ne 0 ] && error_message "Can't generate dynamic classes" && exit 1
+    bin/magento setup:static-content:deploy --jobs=3 -f ${m2_build_languages}
+    [ ${?} -ne 0 ] && error_message "Can't generate static content" && exit 1
+fi
 
 # Optimize composer dependencies
-if [ ${must_install_deps} -eq 1 ]; then
+if [ ${m2_install_deps} -eq 1 ]; then
     composer install --no-plugins --no-scripts --no-dev --apcu-autoloader --optimize-autoloader
     [ ${?} -ne 0 ] && error_message "Can't update composer dependencies" && exit 1
 fi
 
 # Upgrade config
-if [ ${must_upgrade} -eq 1 ]; then
+if [ ${m2_upgrade} -eq 1 ]; then
     bin/magento app:config:import --no-interaction
     [ ${?} -ne 0 ] && echo "ERR~ Can't import app config" && exit 1
     bin/magento setup:upgrade --no-interaction --keep-generated
     [ ${?} -ne 0 ] && error_message "Can't upgrade app config" && exit 1
 fi
 
-# Link cache folders
-if [ ${use_fs} -eq 1 ]; then
-    [ -d var/cache ] && rm -rfv var/cache
-    ln -v -s /magento-app/${env_name}/fs/var/cache /magento-app/${env_name}/site/var/
-    [ -d var/page_cache ] && rm -rfv var/page_cache
-    ln -v -s /magento-app/${env_name}/fs/var/page_cache /magento-app/${env_name}/site/var/
-    [ -d pub/static/_cache ] && rm -rfv pub/static/_cache
-    ln -v -s /magento-app/${env_name}/fs/pub/static/_cache /magento-app/${env_name}/site/pub/static/
-fi
-
 # Reindex and flush cache
-if [ ${must_refresh} -eq 1 ]; then
+if [ ${m2_reindex} -eq 1 ]; then
     bin/magento indexer:reset
     [ ${?} -ne 0 ] && echo "ERR~ Can't reset indexers" && exit 1
     bin/magento indexer:reindex
     [ ${?} -ne 0 ] && error_message "Can't execute reindex operation" && exit 1
+fi
+
+# Final cache flush
+if [ ${m2_flush_cache} -eq 1 ]; then
     bin/magento cache:flush
     [ ${?} -ne 0 ] && error_message "Can't flush cache" && exit 1
 fi
 
 # Reinstall crontab
-if [ ${use_cron} -eq 1 ]; then
+if [ ${m2_use_cron} -eq 1 ]; then
     bin/magento cron:install -f
     [ ${?} -ne 0 ] && error_message "Can't re-install crontab" && exit 1
 fi
 
 # Disable maintenance
-if [ ${must_disable_maintenance} -eq 1 ]; then
+if [ ${m2_disable_maintenance} -eq 1 ]; then
     bin/magento maintenance:disable
     [ ${?} -ne 0 ] && error_message "Can't disable maintenance mode" && exit 1
 fi
