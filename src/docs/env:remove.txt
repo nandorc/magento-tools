@@ -1,0 +1,11 @@
+mage env:remove [options]
+
+Description:
+    This command lets you full delete an env.
+
+Options:
+    --help
+        Displays this document.
+    
+    --name <env_name>
+        Define magento env name. Default is "default".
