@@ -16,7 +16,7 @@ declare docs=$(ls ~/.magetools/var)
 # Display commands list
 declare doc=
 declare cmd=
-info_message "Available envs"
+info_message "Available env vars"
 for doc in ${docs[@]}; do
     cmd=$(echo ${doc} | sed -e "s|\.sh||" | sed -e "s|vars-||")
     custom_message "    - ${cmd}"
