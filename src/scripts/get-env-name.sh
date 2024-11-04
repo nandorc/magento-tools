@@ -5,10 +5,10 @@
 source ~/.magetools/src/bootstrap.sh
 
 # Declare variables
-declare env_name="default"
+declare env_name
 
 # Fragment: validate-options
-source ~/.magetools/src/fragments/validate-options.sh
+source ${path_fragments}/validate-options.sh
 
 # Display env_name
 echo ${env_name}

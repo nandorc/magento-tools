@@ -40,3 +40,20 @@ while [ -n "$(echo "${1}" | grep "^-")" ]; do
     fi
     shift
 done
+
+# Set default values
+[ -z "${cmd_use_help}" ] && cmd_use_help=0
+[ -z "${env_name}" ] && env_name="default"
+[ -z "${git_deploy_branch}" ] && git_deploy_branch=""
+[ -z "${git_pull_mode}" ] && git_pull_mode="hard"
+[ -z "${git_use_stash}" ] && git_use_stash=0
+[ -z "${m2_build_files}" ] && m2_build_files=1
+[ -z "${m2_build_languages}" ] && m2_build_languages=""
+[ -z "${m2_clean_folders}" ] && m2_clean_folders=1
+[ -z "${m2_disable_maintenance}" ] && m2_disable_maintenance=1
+[ -z "${m2_enable_maintenance}" ] && m2_enable_maintenance=1
+[ -z "${m2_flush_cache}" ] && m2_flush_cache=1
+[ -z "${m2_install_deps}" ] && m2_install_deps=1
+[ -z "${m2_reindex}" ] && m2_reindex=1
+[ -z "${m2_upgrade}" ] && m2_upgrade=1
+[ -z "${m2_use_cron}" ] && m2_use_cron=1
