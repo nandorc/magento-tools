@@ -5,10 +5,10 @@
 source ~/.magetools/src/bootstrap.sh
 
 # Declare variables
-declare cmd_use_help=0
+declare cmd_use_help
 
 # Fragment: validate-options
-source ~/.magetools/src/fragments/validate-options.sh
+source ${path_fragments}/validate-options.sh
 
 # Display cmd_use_help
 echo ${cmd_use_help}

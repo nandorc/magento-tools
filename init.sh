@@ -5,8 +5,8 @@ export PATH="~/.magetools/bin:$PATH"
 
 # magento env move
 env-move() {
-    declare must_switch=0
-    declare env_name="${1}"
+    must_switch=0
+    env_name="${1}"
     if [ "${1}" == "-s" ]; then
         must_switch=1
         env_name="${2}"

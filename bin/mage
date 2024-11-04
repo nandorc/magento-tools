@@ -5,8 +5,7 @@
 source ~/.magetools/src/bootstrap.sh
 
 # Check commands folder
-[ ! -d ~/.magetools/src/cmd ] && error_message "Commands folder not found" && exit 1
-declare cmd_dir=~/.magetools/src/cmd
+[ ! -d ${path_cmd} ] && error_message "Commands folder not found" && exit 1
 
 # Get command and action
 declare param=($(echo ${1} | sed -e "s/:/ /"))
@@ -16,12 +15,12 @@ shift
 
 # Validate command
 [ -z "${command}" ] && error_message "No command received" && exit 1
-[ ! -d "${cmd_dir}/${command}" ] && error_message "No valid command received" && exit 1
+[ ! -d "${path_cmd}/${command}" ] && error_message "No valid command received" && exit 1
 
 # Validate action
 [ -z "${action}" ] && action="index"
-[ ! -f "${cmd_dir}/${command}/${action}.sh" ] && error_message "No valid action for ${color_yellow}${command}${color_none} command" && exit 1
+[ ! -f "${path_cmd}/${command}/${action}.sh" ] && error_message "No valid action for ${color_yellow}${command}${color_none} command" && exit 1
 
 # Call action
-bash "${cmd_dir}/${command}/${action}.sh" ${@}
+bash "${path_cmd}/${command}/${action}.sh" ${@}
 [ ${?} -ne 0 ] && exit 1 || exit 0
