@@ -7,21 +7,21 @@ source ~/.magetools/src/bootstrap.sh
 # Declare global variables
 declare cmd_name="deploy"
 declare env_name=$(bash ~/.magetools/src/scripts/get-env-name.sh ${@})
-declare has_git=1
-declare git_has_remote=0
-declare git_use_stash
-declare git_pull_mode
 declare git_deploy_branch
-declare m2_use_cron
-declare m2_install_deps
+declare git_has_remote=0
+declare git_pull_mode
+declare git_use_stash
+declare has_git=1
 declare m2_build_files
 declare m2_build_languages
-declare m2_upgrade
-declare m2_reindex
 declare m2_clean_folders
-declare m2_flush_cache
-declare m2_enable_maintenance
 declare m2_disable_maintenance
+declare m2_enable_maintenance
+declare m2_flush_cache
+declare m2_install_deps
+declare m2_reindex
+declare m2_upgrade
+declare m2_use_cron
 
 # Fragment: show-help
 source ~/.magetools/src/fragments/show-help.sh
