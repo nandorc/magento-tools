@@ -5,15 +5,11 @@
 source ~/.magetools/src/bootstrap.sh
 
 # Declare variables
-declare cmd_name="env:remove"
-declare cmd_yn_confirmation
-declare cmd_continue
-declare env_name=$(bash ~/.magetools/src/scripts/get-env-name.sh ${@})
-declare nginx_vhost_enabled_path
-declare nginx_vhost_available_path
+cmd_name="env:remove"
+env_name=$(bash ${path_scripts}/get-env-name.sh ${@})
 
 # Fragment: show-help
-source ~/.magetools/src/fragments/show-help.sh
+source ${path_fragments}/show-help.sh
 
 # Confirm remove action
 info_message "Do you want to remove env named ${color_yellow}${env_name}${color_none}?"
@@ -28,12 +24,14 @@ done
 
 # Remove env folder
 sudo rm -rfv /magento-app/${env_name}
+[ ${?} -ne 0 ] && error_message "Can't remove main env folder" && exit 1
 
 # Fragment: define-nginx-vhost-vars
-source ~/.magetools/src/fragments/define-nginx-vhost-vars.sh
+source ${path_fragments}/define-nginx-vhost-vars.sh
 
 # Remove env vhost
 sudo rm -rfv ${nginx_vhost_enabled_path} ${nginx_vhost_available_path}
+[ ${?} -ne 0 ] && error_message "Can't remove env vhost file" && exit 1
 
 # End script
 exit 0
