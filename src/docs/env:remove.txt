@@ -7,5 +7,6 @@ Options:
     --help
         Displays this document.
     
-    --name <env_name>
-        Define magento env name. Default is "default".
+    --name <env-name>
+        Specifies the env-name to be used when executing commands.
+        Default is "default".
