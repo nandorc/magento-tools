@@ -4,302 +4,188 @@
 [ ! -f ~/.magetools/src/bootstrap.sh ] && error_message "Can not bootstrap magetools" && exit 1
 source ~/.magetools/src/bootstrap.sh
 
-# Get env identity
-declare env_name=default
-declare env_user=${USER}
-declare env_mode=dev
-declare env_fs=0
-declare env_cron=0
-declare env_install=1
-declare env_use_repo=1
-declare env_must_clean_db=1
-while [ -n "${1}" ]; do
-    if [ "${1}" == "--help" ]; then
-        [ ! -f ~/.magetools/src/docs/env:setup.txt ] && error_message "No help documentation found" && exit 1
-        (cat ~/.magetools/src/docs/env:setup.txt | less -c) && exit 0
-    elif [ "${1}" == "--name" ]; then
-        ([ -z "${2}" ] || [ -n "$(echo ${2} | grep "^-")" ]) && error_message "Name can not be empty" && exit 1
-        env_name=${2} && shift
-    elif [ "${1}" == "--mode" ]; then
-        ([ -z "${2}" ] || [ -n "$(echo ${2} | grep "^-")" ]) && error_message "Mode can not be empty" && exit 1
-        [ "${2}" != "dev" ] && [ "${2}" != "prod" ] && error_message "Mode must be dev or prod" && exit 1
-        env_mode=${2} && shift
-    elif [ "${1}" == "--with-fs" ]; then
-        env_fs=1
-    elif [ "${1}" == "--with-cron" ]; then
-        env_cron=1
-    elif [ "${1}" == "--no-install" ]; then
-        env_install=0
-    elif [ "${1}" == "--no-repo" ]; then
-        env_use_repo=0
-    elif [ "${1}" == "--no-clean-db" ]; then
-        env_must_clean_db=0
-    fi
-    shift
-done
+# Declare global variables
+cmd_name="env:setup"
+env_name=$(bash ${path_scripts}/get-env-name.sh ${@})
 
-# Set default values
-env_name=$(echo "${env_name}" | sed -e "s| |-|")
+# Fragment: command-init-vars
+source ${path_fragments}/command-init-vars.sh
+
+# Set env_user
+env_user=${USER}
+[ -z "${env_user}" ] && env_user="${system_fallback_user}"
 if [ -z "${env_user}" ]; then
-    echo -e "OS user name: \c" && read env_user
+    info_message "OS user name: \c" && read env_user
 fi
 [ -z "${env_user}" ] && error_message "User for env not defined" && exit 1
 
-# Declare and load env app variables
-declare git_protocol=
-declare git_user=
-declare git_key=
-declare git_route=
-declare git_branch=
-declare repo_user=
-declare repo_email=
-declare db_host=
-declare db_name=
-declare db_user=
-declare db_pwd=
-declare search_engine=
-declare search_host=
-declare search_port=
-declare search_auth=
-declare search_user=
-declare search_pwd=
-declare base_url=
-declare admin_path=
-declare magento_version=2.4.7
-declare php_version=8.3
-declare excluded_on_install=
-[ ! -f ~/.magetools/var/vars-"${env_name}".sh ] && error_message "Can't find vars file for env with name ${color_yellow}${env_name}${color_none}" && exit 1
-source ~/.magetools/var/vars-"${env_name}".sh
-
 # Create and move to env folder
-if [ ! -d /magento-app/${env_name} ]; then
-    sudo mkdir -v -p /magento-app/${env_name}
+if [ ! -d ${path_env}/${env_name} ]; then
+    sudo mkdir -v -p ${path_env}/${env_name}
     [ ${?} -ne 0 ] && error_message "Can't create env folder" && exit 1
 fi
-sudo chown -v ${env_user}:${env_user} /magento-app/${env_name}
+sudo chown -v ${env_user}:${env_user} ${path_env}/${env_name}
 [ ${?} -ne 0 ] && error_message "Can't assign ownership to env folder" && exit 1
 
-# Create app folders
-if [ ! -d /magento-app/${env_name}/site ]; then
-    mkdir -v -p /magento-app/${env_name}/site
+# Create site folder
+if [ ! -d ${path_env}/${env_name}/site ]; then
+    mkdir -v -p ${path_env}/${env_name}/site
     [ ${?} -ne 0 ] && error_message "Can't create site folder for env" && exit 1
 fi
-if [ ${env_fs} -eq 1 ] && [ ! -d /magento-app/${env_name}/fs ]; then
-    mkdir -v -p /magento-app/${env_name}/fs
-    [ ${?} -ne 0 ] && error_message "Can't create fs folder for env" && exit 1
-fi
 
-# Build git repo
-declare git_repository=
-if [ ${env_use_repo} -eq 1 ] && [ ! -d /magento-app/${env_name}/site/.git ]; then
-    [ "${git_protocol}" != "http" ] && [ "${git_protocol}" != "https" ] && [ "${git_protocol}" != "ssh" ] && error_message "git_protocol must be http, https or ssh" && exit 1
-    [ -z "${git_route}" ] && error_message "git_route must be defined" && exit 1
-    if [ "${git_protocol}" == "ssh" ]; then
-        git_repository=${git_route}
-    else
-        [ -z "${git_user}" ] && error_message "git_user must be defined for http/https protocol" && exit 1
-        [ -z "${git_key}" ] && error_message "git_key must be defined for http/https protocol" && exit 1
-        git_repository="${git_protocol}://${git_user}:${git_key}@${git_route}"
+# Move to env directory
+cd ${path_env}/${env_name}/site
+
+# Set git setup origin
+git_setup_origin=""
+if [ ! -d .git ]; then
+    if [ "${git_setup_origin_protocol}" == "http" ] || [ "${git_setup_origin_protocol}" == "https" ]; then
+        git_setup_origin="${git_setup_origin_protocol}://"
+        [ -z "${git_setup_origin_user}" ] && error_message "setup-origin-user must be defined" && exit 1
+        git_setup_origin="${git_setup_origin}${git_setup_origin_user}:"
+        [ -z "${git_setup_origin_key}" ] && error_message "setup-origin-key must be defined" && exit 1
+        git_setup_origin="${git_setup_origin}${git_setup_origin_key}@"
     fi
-    [ -z "${git_branch}" ] && git_branch=develop
+    if [ "${git_setup_origin_protocol}" != "" ]; then
+        [ -z "${git_setup_origin_host}" ] && error_message "setup-origin-host must be defined" && exit 1
+        git_setup_origin="${git_setup_origin}${git_setup_origin_host}"
+    fi
 fi
 
-# Clone or install
-declare must_set_repo_user=0
-declare must_create_init_commit=0
-if [ -n "${git_repository}" ]; then
-    git clone -b ${git_branch} ${git_repository} /magento-app/${env_name}/site
-    [ ${?} -ne 0 ] && error_message "Can't clone git repository" && exit 1
-    cd /magento-app/${env_name}/site
-    composer install
-    [ ${?} -ne 0 ] && error_message "Can't install composer dependencies" && exit 1
-    must_set_repo_user=1
-elif [ ! -d /magento-app/${env_name}/site/.git ]; then
-    cd /magento-app/${env_name}/site
-    composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition="${magento_version}" .
-    [ ${?} -ne 0 ] && error_message "Can't create new Magento project" && exit 1
+# Create or clone project
+if [ ! -f bin/magento ]; then
+    if [ -z "${git_setup_origin}" ]; then
+        [ -z "${m2_setup_version}" ] && error_message "setup-version must be defined" && exit 1
+        composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition="${m2_setup_version}" .
+        [ ${?} -ne 0 ] && error_message "Can't create new Magento project" && exit 1
+    elif [ -n "${git_setup_origin_branch}" ]; then
+        git clone -b ${git_setup_origin_branch} ${git_setup_origin} .
+        [ ${?} -ne 0 ] && error_message "Can't clone git repository" && exit 1
+    else
+        git clone ${git_setup_origin} .
+        [ ${?} -ne 0 ] && error_message "Can't clone git repository" && exit 1
+    fi
+fi
+
+# Install composer dependencies
+m2_setup_composer_cmd="composer install --no-plugins --no-scripts"
+[ "${m2_setup_mode}" == "prod" ] && m2_setup_composer_cmd="${m2_setup_composer_cmd} --no-dev"
+eval "${m2_setup_composer_cmd}"
+[ ${?} -ne 0 ] && error_message "Can't install composer dependencies" && exit 1
+
+# Check static and media folders
+[ ! -d pub/media ] && mkdir -v -p pub/media
+[ ! -d pub/static ] && mkdir -v -p pub/static
+
+# Set m2_setup_install_cmd
+m2_setup_install_cmd=""
+[ -f app/etc/env.php ] && m2_setup_install=0
+if [ ${m2_setup_install} -eq 1 ]; then
+    m2_setup_install_cmd="bin/magento setup:install"
+    [ -n "${m2_setup_install_admin_path}" ] && m2_setup_install_cmd="${m2_setup_install_cmd} --backend-frontname='${m2_setup_install_admin_path}'"
+    [ -z "${m2_setup_install_db_host}" ] && error_message "setup-install-db-host is required" && exit 1
+    m2_setup_install_cmd="${m2_setup_install_cmd} --db-host='${m2_setup_install_db_host}'"
+    [ -z "${m2_setup_install_db_name}" ] && error_message "setup-install-db-name is required" && exit 1
+    m2_setup_install_cmd="${m2_setup_install_cmd} --db-name='${m2_setup_install_db_name}'"
+    [ -z "${m2_setup_install_db_user}" ] && error_message "setup-install-db-user is required" && exit 1
+    m2_setup_install_cmd="${m2_setup_install_cmd} --db-user='${m2_setup_install_db_user}'"
+    [ -z "${m2_setup_install_db_pwd}" ] && error_message "setup-install-db-pwd is required" && exit 1
+    m2_setup_install_cmd="${m2_setup_install_cmd} --db-password='${m2_setup_install_db_pwd}'"
+    [ -z "${m2_setup_install_base_url}" ] && error_message "setup-install-base-url is required" && exit 1
+    m2_setup_install_cmd="${m2_setup_install_cmd} --base-url='${m2_setup_install_base_url}'"
+    m2_setup_install_cmd="${m2_setup_install_cmd} --use-rewrites=1"
+    if [ -n "${m2_setup_install_admin_user}" ] || [ -n "${m2_setup_install_admin_pwd}" ] || [ -n "${m2_setup_install_admin_email}" ] || [ -n "${m2_setup_install_admin_firstname}" ] || [ -n "${m2_setup_install_admin_lastname}" ]; then
+        [ -z "${m2_setup_install_admin_user}" ] && error_message "setup-install-admin-user is required" && exit 1
+        m2_setup_install_cmd="${m2_setup_install_cmd} --admin-user='${m2_setup_install_admin_user}'"
+        [ -z "${m2_setup_install_admin_pwd}" ] && error_message "setup-install-admin-pwd is required" && exit 1
+        m2_setup_install_cmd="${m2_setup_install_cmd} --admin-password='${m2_setup_install_admin_pwd}'"
+        [ -z "${m2_setup_install_admin_email}" ] && error_message "setup-install-admin-email is required" && exit 1
+        m2_setup_install_cmd="${m2_setup_install_cmd} --admin-email='${m2_setup_install_admin_email}'"
+        [ -z "${m2_setup_install_admin_firstname}" ] && error_message "setup-install-admin-firstname is required" && exit 1
+        m2_setup_install_cmd="${m2_setup_install_cmd} --admin-firstname='${m2_setup_install_admin_firstname}'"
+        [ -z "${m2_setup_install_admin_lastname}" ] && error_message "setup-install-admin-lastname is required" && exit 1
+        m2_setup_install_cmd="${m2_setup_install_cmd} --admin-lastname='${m2_setup_install_admin_lastname}'"
+    fi
+    [ -z "${m2_setup_install_search_engine}" ] && error_message "setup-install-search-engine is required" && exit 1
+    m2_setup_install_cmd="${m2_setup_install_cmd} --search-engine='${m2_setup_install_search_engine}'"
+    m2_setup_install_search_prefix="elasticsearch"
+    [ "${m2_setup_install_search_engine}" == "opensearch" ] && m2_setup_install_search_prefix="opensearch"
+    [ -z "${m2_setup_install_search_host}" ] && error_message "setup-install-search-host is required" && exit 1
+    m2_setup_install_cmd="${m2_setup_install_cmd} --${m2_setup_install_search_prefix}-host='${m2_setup_install_search_host}'"
+    [ -z "${m2_setup_install_search_port}" ] && error_message "setup-install-search-port is required" && exit 1
+    m2_setup_install_cmd="${m2_setup_install_cmd} --${m2_setup_install_search_prefix}-port='${m2_setup_install_search_port}'"
+    if [ ${m2_setup_install_search_auth} -eq 1 ]; then
+        m2_setup_install_cmd="${m2_setup_install_cmd} --${m2_setup_install_search_prefix}-enable-auth=1"
+        [ -z "${m2_setup_install_search_user}" ] && error_message "setup-install-search-user is required" && exit 1
+        m2_setup_install_cmd="${m2_setup_install_cmd} --${m2_setup_install_search_prefix}-username='${m2_setup_install_search_user}'"
+        [ -z "${m2_setup_install_search_pwd}" ] && error_message "setup-install-search-pwd is required" && exit 1
+        m2_setup_install_cmd="${m2_setup_install_cmd} --${m2_setup_install_search_prefix}-password='${m2_setup_install_search_pwd}'"
+    fi
+    [ ${m2_setup_install_db_clean} -eq 1 ] && m2_setup_install_cmd="${m2_setup_install_cmd} --cleanup-database"
+    m2_setup_install_cmd="${m2_setup_install_cmd} --no-interaction"
+fi
+
+# Disable excluded modules before install
+if [ ${m2_setup_install} -eq 1 ] && [ -n "${m2_setup_install_excluded_modules}" ]; then
+    bin/magento module:disable -c ${m2_setup_install_excluded_modules}
+    [ ${?} -ne 0 ] && error_message "Can't disable excluded modules before install" && exit 1
+fi
+
+# Install app if necessary
+if [ ${m2_setup_install} -eq 1 ]; then
+    eval "${m2_setup_install_cmd}"
+    [ ${?} -ne 0 ] && error_message "Can't install magento app" && exit 1
+fi
+
+# Enable excluded modules after install
+if [ ${m2_setup_install} -eq 1 ] && [ -n "${m2_setup_install_excluded_modules}" ]; then
+    bin/magento module:enable -c ${m2_setup_install_excluded_modules}
+    [ ${?} -ne 0 ] && error_message "Can't enable excluded modules after install" && exit 1
+fi
+
+# Set deploy mode
+if [ -f app/etc/env.php ]; then
+    m2_setup_deploy_mode="developer"
+    [ "${m2_setup_mode}" == "prod" ] && m2_setup_deploy_mode="production"
+    bin/magento deploy:mode:set ${m2_setup_deploy_mode} --skip-compilation --no-interaction
+    [ ${?} -ne 0 ] && error_message "Can't set deploy mode" && exit 1
+fi
+
+# Assign permissions and ownership to app
+mage perms
+[ ${?} -ne 0 ] && error_message "Can't assign permissions and ownership to site folder content" && exit 1
+
+# Initialize repository
+git_setup_create_first_commit=0
+if [ ! -d .git ]; then
     if [ ! -f .gitignore ]; then
-        cp -v ~/.magetools/src/templates/.gitignore.sample ./.gitignore
+        cp -v ${path_templates}/.gitignore.sample ./.gitignore
         [ ${?} -ne 0 ] && error_message "Can't copy template for .gitignore" && exit 1
     fi
     git init
     [ ${?} -ne 0 ] && error_message "Can't init Magento project repo" && exit 1
-    must_set_repo_user=1
-    must_create_init_commit=1
+    git_setup_create_first_commit=1
 fi
 
-# Set repo user
-if [ ${must_set_repo_user} -eq 1 ]; then
-    [ -z "${repo_user}" ] && repo_user=${env_user}
-    [ -z "${repo_email}" ] && repo_email=${env_user}@sample.com
-    git config --local user.name "${repo_user}"
-    [ ${?} -ne 0 ] && error_message "Can't set repo user.name" && exit 1
-    git config --local user.email "${repo_email}"
-    [ ${?} -ne 0 ] && error_message "Can't set repo user.email" && exit 1
+# Set repo user data
+if [ -z "${git_setup_user_name}" ]; then
+    info_message "Local repo user name (${env_user}): \c"
+    read git_setup_user_name
+    [ -z "${git_setup_user_name}" ] && git_setup_user_name="${env_user}"
 fi
+git config --local user.name "${git_setup_user_name}"
+if [ -z "${git_setup_user_email}" ]; then
+    info_message "Local repo user email (${env_user}@example.com): \c"
+    read git_setup_user_email
+    [ -z "${git_setup_user_email}" ] && git_setup_user_email="${env_user}@example.com"
+fi
+git config --local user.email "${git_setup_user_email}"
+[ ${?} -ne 0 ] && error_message "Can't set repo user.email" && exit 1
 
 # Create first commit
-if [ ${must_create_init_commit} -eq 1 ]; then
-    git add . && git commit -m "Init Magento project at $(date)"
+if [ ${git_setup_create_first_commit} -eq 1 ]; then
+    git add . && git commit -m "Setup Magento project at $(date)"
     [ ${?} -ne 0 ] && error_message "Can't create init commit for Magento project" && exit 1
-fi
-
-# Assign permissions and ownership to app
-cd /magento-app/${env_name}/site
-[ ! -f ~/.magetools/bin/mage ] && error_message "Can't find mage task executor" && exit 1
-mage perms
-[ ${?} -ne 0 ] && error_message "Can't assign permissions and ownership to site folder content" && exit 1
-git restore .
-
-# Install app
-declare mage_install_cmd=
-declare search_engine_prefix=
-if [ ${env_install} -eq 1 ] && [ ! -f /magento-app/${env_name}/fs/app/etc/env.php ]; then
-    mage_install_cmd="bin/magento setup:install"
-    if [ -n "${admin_path}" ]; then
-        mage_install_cmd="${mage_install_cmd} --backend-frontname='${admin_path}'"
-    fi
-    [ -z "${db_host}" ] && error_message "db_host must be defined" && exit 1
-    mage_install_cmd="${mage_install_cmd} --db-host='${db_host}'"
-    [ -z "${db_name}" ] && error_message "db_pwd name be defined" && exit 1
-    mage_install_cmd="${mage_install_cmd} --db-name='${db_name}'"
-    [ -z "${db_user}" ] && error_message "db_user must be defined" && exit 1
-    mage_install_cmd="${mage_install_cmd} --db-user='${db_user}'"
-    [ -z "${db_pwd}" ] && error_message "db_pwd must be defined" && exit 1
-    mage_install_cmd="${mage_install_cmd} --db-password='${db_pwd}'"
-    [ -z "${base_url}" ] && error_message "base_url must be defined" && exit 1
-    mage_install_cmd="${mage_install_cmd} --base-url='${base_url}' --use-rewrites=1"
-    [ "${search_engine}" != "elasticsearch7" ] && [ "${search_engine}" != "opensearch" ] && error_message "No valid search engine defined. Only valid elasticsearch7 or opensearch" && exit 1
-    mage_install_cmd="${mage_install_cmd} --search-engine='${search_engine}'"
-    if [ "${search_engine}" == "elasticsearch7" ]; then
-        search_engine_prefix=elasticsearch
-    else
-        search_engine_prefix=opensearch
-    fi
-    [ -z "${search_host}" ] && error_message "search_host must be defined" && exit 1
-    mage_install_cmd="${mage_install_cmd} --${search_engine_prefix}-host='${search_host}'"
-    [ -z "${search_port}" ] && error_message "search_port must be defined" && exit 1
-    mage_install_cmd="${mage_install_cmd} --${search_engine_prefix}-port=${search_port}"
-    if [ "${search_auth}" == "1" ]; then
-        mage_install_cmd="${mage_install_cmd} --${search_engine_prefix}-enable-auth=1"
-        [ -z "${search_user}" ] && error_message "search_user must be defined if search_auth is 1" && exit 1
-        mage_install_cmd="${mage_install_cmd} --${search_engine_prefix}-username='${search_user}'"
-        [ -z "${search_pwd}" ] && error_message "search_pwd must be defined if search_auth is 1" && exit 1
-        mage_install_cmd="${mage_install_cmd} --${search_engine_prefix}-password='${search_pwd}'"
-    fi
-    if [ ${env_must_clean_db} -eq 1 ]; then
-        mage_install_cmd="${mage_install_cmd} --cleanup-database"
-    fi
-    mage_install_cmd="${mage_install_cmd} --no-interaction"
-    if [ -n "${excluded_on_install}" ]; then
-        bin/magento module:disable -c ${excluded_on_install}
-        [ ${?} -ne 0 ] && error_message "Can't disable on install excluded modules" && exit 1
-    fi
-    eval "${mage_install_cmd}"
-    [ ${?} -ne 0 ] && error_message "Can't install magento app" && exit 1
-    if [ -n "${excluded_on_install}" ]; then
-        bin/magento module:enable -c ${excluded_on_install}
-        [ ${?} -ne 0 ] && error_message "Can't re-enable on install excluded modules" && exit 1
-    fi
-    if [ "${env_mode}" == "prod" ]; then
-        bin/magento deploy:mode:set production
-        [ ${?} -ne 0 ] && error_message "Can't apply production mode" && exit 1
-    fi
-fi
-
-# Replicate and clean nginx conf file
-declare nginx_file_name=
-if [ -f /magento-app/${env_name}/site/nginx.conf ]; then
-    nginx_file_name=nginx.conf
-elif [ -f /magento-app/${env_name}/site/nginx.conf.sample ]; then
-    nginx_file_name=nginx.conf.sample
-else
-    error_message "Can't find nginx conf at ${color_yellow}/magento-app/${env_name}/site${color_none}" && exit 1
-fi
-cp -v /magento-app/${env_name}/site/${nginx_file_name} /magento-app/${env_name}/nginx.conf
-sed -i -e "/HTTPS \"on\"/d" /magento-app/${env_name}/nginx.conf
-sed -i -e "/HTTP_X_FORWARDED_PROTO \"https\"/d" /magento-app/${env_name}/nginx.conf
-
-# Create nginx host file
-declare hostfile_name=00-magento-${env_name}
-declare enabled_host_path=/etc/nginx/sites-enabled/${hostfile_name}
-declare available_host_path=/etc/nginx/sites-available/${hostfile_name}
-sudo rm -rfv ${enabled_host_path} ${available_host_path}
-sudo touch ${available_host_path}
-sudo chown -v ${env_user}:${env_user} ${available_host_path}
-
-# Fill host file content
-echo "upstream fastcgi_backend {" >${available_host_path}
-echo "    server unix:/run/php/php${php_version}-fpm.sock;" >>${available_host_path}
-echo "}" >>${available_host_path}
-echo "" >>${available_host_path}
-echo "server {" >>${available_host_path}
-echo "    listen 80;" >>${available_host_path}
-echo "    server_name _;" >>${available_host_path}
-echo "    set \$MAGE_ROOT /magento-app/${env_name}/site;" >>${available_host_path}
-echo "    include /magento-app/${env_name}/nginx.conf;" >>${available_host_path}
-echo "}" >>${available_host_path}
-sudo chown -v root:root ${available_host_path}
-
-# Setup env.php
-if [ ${env_fs} -eq 1 ] && [ -d /magento-app/${env_name}/fs ]; then
-    [ ! -d /magento-app/${env_name}/fs/app/etc ] && mkdir -p /magento-app/${env_name}/fs/app/etc
-    if [ ! -f /magento-app/${env_name}/fs/app/etc/env.php ]; then
-        mv -v /magento-app/${env_name}/site/app/etc/env.php /magento-app/${env_name}/fs/app/etc/
-    else
-        rm -rfv /magento-app/${env_name}/site/app/etc/env.php
-    fi
-    [ ! -L /magento-app/${env_name}/site/app/etc/env.php ] && ln -v -s /magento-app/${env_name}/fs/app/etc/env.php /magento-app/${env_name}/site/app/etc/
-fi
-
-# Install crontab
-if [ ${env_cron} -eq 1 ]; then
-    bin/magento cron:install -f
-    bin/magento cron:run
-fi
-
-# Setup media folder
-if [ ${env_fs} -eq 1 ] && [ -d /magento-app/${env_name}/fs ]; then
-    [ ! -d /magento-app/${env_name}/fs/pub ] && mkdir -p /magento-app/${env_name}/fs/pub
-    if [ ! -d /magento-app/${env_name}/fs/pub/media ]; then
-        mv -v /magento-app/${env_name}/site/pub/media /magento-app/${env_name}/fs/pub/media
-    else
-        rm -rfv /magento-app/${env_name}/site/pub/media
-    fi
-    [ ! -L /magento-app/${env_name}/site/pub/media ] && ln -v -s /magento-app/${env_name}/fs/pub/media /magento-app/${env_name}/site/pub/
-fi
-
-# Setup static/_cache folder
-if [ ${env_fs} -eq 1 ] && [ -d /magento-app/${env_name}/fs ]; then
-    [ ! -d /magento-app/${env_name}/fs/pub/static ] && mkdir -p /magento-app/${env_name}/fs/pub/static
-    if [ ! -d /magento-app/${env_name}/fs/pub/static/_cache ]; then
-        mv -v /magento-app/${env_name}/site/pub/static/_cache /magento-app/${env_name}/fs/pub/static/_cache
-    else
-        rm -rfv /magento-app/${env_name}/site/pub/static/_cache
-    fi
-    [ ! -L /magento-app/${env_name}/site/pub/static/_cache ] && ln -v -s /magento-app/${env_name}/fs/pub/static/_cache /magento-app/${env_name}/site/pub/static/
-fi
-
-# Setup var/cache folder
-if [ ${env_fs} -eq 1 ] && [ -d /magento-app/${env_name}/fs ]; then
-    [ ! -d /magento-app/${env_name}/fs/var ] && mkdir -p /magento-app/${env_name}/fs/var
-    if [ ! -d /magento-app/${env_name}/fs/var/cache ]; then
-        mv -v /magento-app/${env_name}/site/var/cache /magento-app/${env_name}/fs/var/cache
-    else
-        rm -rfv /magento-app/${env_name}/site/var/cache
-    fi
-    [ ! -L /magento-app/${env_name}/site/var/cache ] && ln -v -s /magento-app/${env_name}/fs/var/cache /magento-app/${env_name}/site/var/
-fi
-
-# Setup var/page_cache folder
-if [ ${env_fs} -eq 1 ] && [ -d /magento-app/${env_name}/fs ]; then
-    [ ! -d /magento-app/${env_name}/fs/var ] && mkdir -p /magento-app/${env_name}/fs/var
-    if [ ! -d /magento-app/${env_name}/fs/var/page_cache ]; then
-        mv -v /magento-app/${env_name}/site/var/page_cache /magento-app/${env_name}/fs/var/page_cache
-    else
-        rm -rfv /magento-app/${env_name}/site/var/page_cache
-    fi
-    [ ! -L /magento-app/${env_name}/site/var/page_cache ] && ln -v -s /magento-app/${env_name}/fs/var/page_cache /magento-app/${env_name}/site/var/
 fi
 
 # End script

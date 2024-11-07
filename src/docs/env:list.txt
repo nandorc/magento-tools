@@ -1,0 +1,8 @@
+mage env:list [options]
+
+Description:
+    This command provides a way to list existing magento envs.
+
+Options:
+    --help
+        Displays this document.

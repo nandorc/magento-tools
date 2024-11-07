@@ -1,41 +1,48 @@
-mage deliver [options]
+mage deliver [options] [<env-name>]
 
 Description:
     This command provides a way to deliver changes from a branch on a developer environment.
 
+Params
+    <env-name> [OPTIONAL]
+        Specifies the env-name to be used when executing commands.
+        Default is 'default'.
+
 Options:
-    --branch <branch>
-        Specify git branch which is going to be taken as base for build commit.
+    --branch '<git-deploy-branch>'
+        Specify git branch which is going to be taken as base for executing git ops.
 
     --help
         Displays this document.
 
-    --name <env_name>
-        Define magento env name for deploy. Default is "default".
+    --no-cache-flush
+        Specifies that Magento must avoid cleaning cache when executing commands.
+
+    --no-clean-folders
+        Specifies that Magento must avoid cleaning folders content when executing commands.
 
     --no-deps
-        Prevents that deploy command executes package manager related actions.
+        Specifies that Magento must avoid composer related actions when executing commands.
 
     --no-disable-maintenance
-        Prevents that deploy command disables maintenance mode on Magento (magento maintenance:disable).
+        Specifies that Magento must avoid disabling maintenance mode when executing commands.
 
     --no-enable-maintenance
-        Prevents that deploy command enables maintenance mode on Magento (magento maintenance:enable).
+        Specifies that Magento must avoid enabling maintenance mode when executing commands.
 
-    --no-force-pull
-        Prevents that deploy command uses 'git reset' instead of 'git pull' to pull changes from origin.
-
-    --no-git
-        Prevents that deploy command pulls changes from git origin.
-
-    --no-refresh
-        Prevents that deploy command execute refresh actions on Magento (magento indexer:reindex; magento cache:flush).
-
-    --no-stash
-        Prevents that deploy command tries to stash current changes if necessary.
+    --no-reindex
+        Specifies that Magento must avoid reindexing process when executing commands.
 
     --no-upgrade
-        Prevents that deploy command execute database upgrade on Magento (magento setup:upgrade).
+        Specifies that Magento must avoid data upgrade process when executing commands.
 
-    --with-fs
-        Specifies when the app is using shared file system between nodes.
+    --pull-mode '<git-pull-mode>'
+        Defines the way git must pull changes from origin.
+        Value must be:
+            'none' - Indicates to no pull changes from origin.
+            'soft' - Indicates to pull changes using git pull.
+            'hard' - Indicates to pull changes using git reset.
+        Default value is 'hard'.
+
+    --use-stash
+        Specifies that GIT must try to stash current changes if necessary.

@@ -8,7 +8,7 @@
 [ ! -f ~/.bash_aliases ] && touch ~/.bash_aliases
 
 # Check if source is included at .bash_aliases file
-declare source_exists=$(cat ~/.bash_aliases | grep "source ~/.magetools/init.sh")
+source_exists=$(cat ~/.bash_aliases | grep "source ~/.magetools/init.sh")
 if [ -z "${source_exists}" ]; then
     echo "" >>~/.bash_aliases
     echo "# Source for mage tools" >>~/.bash_aliases
