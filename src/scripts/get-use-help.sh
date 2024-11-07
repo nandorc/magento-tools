@@ -4,9 +4,6 @@
 [ ! -f ~/.magetools/src/bootstrap.sh ] && error_message "Can not bootstrap magetools" && exit 1
 source ~/.magetools/src/bootstrap.sh
 
-# Declare variables
-declare cmd_use_help
-
 # Fragment: validate-options
 source ${path_fragments}/validate-options.sh
 
