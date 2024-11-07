@@ -18,8 +18,6 @@ source ${path_fragments}/define-nginx-vhost-vars.sh
 if [ -L ${nginx_vhost_enabled_file} ]; then
     info_message "${env_name} is the current active host" 
     [ ${cmd_use_force} -eq 0 ] && exit 0
-elif [ ! -f ${nginx_vhost_available_file} ]; then
-    error_message "${env_name} host does not exists" && exit 1
 fi
 
 # Replicate and clean nginx conf file
