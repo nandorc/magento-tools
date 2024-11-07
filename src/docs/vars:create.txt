@@ -1,11 +1,16 @@
-mage vars:create [options] <name>
+mage vars:create [options] [<env-name>]
 
 Description:
-    This command provides a way to create a new vars file for a magento env. The name for the new env is defined with <name> arg.
+    This command provides a way to create a new vars file for a magento env. The name for the new env is defined with <env_name> arg.
+
+Params
+    <env-name> [OPTIONAL]
+        Specifies the env-name to be used when executing commands.
+        Default is 'default'.
 
 Options:
+    --force
+        Specifies if command must be executed in forced mode
+
     --help
         Displays this document.
-    
-    --force
-        Force file creation even if it already exists
