@@ -1,7 +1,12 @@
-mage deploy [options]
+mage deploy [options] [<env-name>]
 
 Description:
     This command provides a way to create a deploy changes on a production environment.
+
+Params
+    <env-name> [OPTIONAL]
+        Specifies the env-name to be used when executing commands.
+        Default is 'default'.
 
 Options:
     --branch '<git-deploy-branch>'
@@ -14,10 +19,6 @@ Options:
         Defines languages to use when deploying static content
         Value must be a valid group of languages. Ex. 'es_ES en_US'
         Default value is empty ('') so Magento will deploy content based on themes config
-
-    --name '<env-name>'
-        Specifies the env-name to be used when executing commands.
-        Default is 'default'.
     
     --no-build
         Specifies that Magento must avoid building files when executing commands.
