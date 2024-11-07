@@ -1,4 +1,4 @@
-mage perms [options]
+mage perms [options] [<paths...>]
 
 Description:
     This command assign recommended files and folders permissions and ownership.
@@ -8,6 +8,11 @@ Description:
     Files permission must be 0664 except for executable files wich has to be 0775.
 
     Folders permission must be 2775 to keep user group when creating new files inside.
+
+Params
+    <paths...> [OPTIONAL]
+        Specifies paths to be used when executing command.
+        Paths must be valid Magento projects. Must have bin/magento file
 
 Options:
     --help
