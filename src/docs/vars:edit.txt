@@ -1,7 +1,12 @@
-mage vars:edit [options] <name>
+mage vars:edit [options] [<env-name>]
 
 Description:
-    This command provides a way to edit an existing vars file for a magento env named <name>.
+    This command provides a way to edit an existing vars file for a magento env named <env-name>.
+
+Params
+    <env-name> [OPTIONAL]
+        Specifies the env-name to be used when executing commands.
+        Default is 'default'.
 
 Options:
     --help

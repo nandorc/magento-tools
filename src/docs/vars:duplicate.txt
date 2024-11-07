@@ -1,9 +1,19 @@
-mage vars:duplicate [options] <origin> <target>
+mage vars:duplicate [options] <env-origin> <env-target>
 
 Description:
-    This command provides a way to duplicate an existing vars file for a magento env named <origin> as a new vars file named <target>.
-    If <target> is an existing vars file, it'll be replaced by the content in <origin> vars file.
+    This command provides a way to duplicate an existing vars file for a magento env named <env-origin> as a new vars file named <env-target>.
+    If <env-target> is an existing vars file, use --force frag to replace by the content in <env-origin> vars file.
+
+Params
+    <env-origin>
+        Specifies the env name to be used as origin env when executing commands.
+
+    <env-target>
+        Specifies the env name to be used as target env when executing commands.
 
 Options:
+    --force
+        Specifies if command must be executed in forced mode
+
     --help
         Displays this document.
