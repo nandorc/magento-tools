@@ -4,15 +4,15 @@ Description:
     This command provides a way to deliver changes from a branch on a developer environment.
 
 Options:
-    --branch <git-deploy-branch>
+    --branch '<git-deploy-branch>'
         Specify git branch which is going to be taken as base for executing git ops.
 
     --help
         Displays this document.
 
-    --name <env-name>
+    --name '<env-name>'
         Specifies the env-name to be used when executing commands.
-        Default is "default".
+        Default is 'default'.
 
     --no-cache-flush
         Specifies that Magento must avoid cleaning cache when executing commands.
@@ -35,13 +35,13 @@ Options:
     --no-upgrade
         Specifies that Magento must avoid data upgrade process when executing commands.
 
-    --pull-mode <git-pull-mode>
+    --pull-mode '<git-pull-mode>'
         Defines the way git must pull changes from origin.
         Value must be:
-            "none" - Indicates to no pull changes from origin.
-            "soft" - Indicates to pull changes using git pull.
-            "hard" - Indicates to pull changes using git reset.
-        Default value is "hard".
+            'none' - Indicates to no pull changes from origin.
+            'soft' - Indicates to pull changes using git pull.
+            'hard' - Indicates to pull changes using git reset.
+        Default value is 'hard'.
 
     --use-stash
         Specifies that GIT must try to stash current changes if necessary.

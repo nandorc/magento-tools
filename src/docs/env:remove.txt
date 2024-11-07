@@ -7,6 +7,6 @@ Options:
     --help
         Displays this document.
     
-    --name <env-name>
+    --name '<env-name>'
         Specifies the env-name to be used when executing commands.
-        Default is "default".
+        Default is 'default'.

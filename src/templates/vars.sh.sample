@@ -1,33 +1,106 @@
-##################################
-# Variables to config GIT config #
-##################################
+####################################
+# Variables to config System setup #
+####################################
+
+# system_webserver_https
+#  Defines if web server must use https fastcgi_params
+#  Value must be 0 or 1. Default is 0
+#  Can be set to 1 on CLI using --webserver-https
+#system_webserver_https=0
+
+# system_php_version
+#  Defines server php version
+#  Value must be a valid php version (e.x. '8.3')
+#  Default is ''
+#  Can be set on CLI using --php-version '<system-php-version>'
+#system_php_version=''
+
+###########################
+# Variables to config GIT #
+###########################
 
 # git_deploy_branch
 #  Defines branch to be used when deploying.
 #  It must be a valid branch name. Ex. develop.
 #  If not defined, it'll deploy using current branch.
-#  Can be set on CLI using --branch <git-deploy-branch> flag
-#git_deploy_branch=develop
+#  Can be set on CLI using --branch '<git-deploy-branch>'
+#git_deploy_branch='develop'
 
 # git_pull_mode
 #  Defines the way git must pull changes from origin.
 #  Value must be:
-#    "none" - Indicates to no pull changes from origin.
-#    "soft" - Indicates to pull changes using git pull.
-#    "hard" - Indicates to pull changes using git reset.
-#  Default value is "hard".
-#  Can be set on CLI using --pull-mode <git-pull-mode> flag
-git_pull_mode="hard"
+#    'none' - Indicates to no pull changes from origin.
+#    'soft' - Indicates to pull changes using git pull.
+#    'hard' - Indicates to pull changes using git reset.
+#  Default value is 'hard'.
+#  Can be set on CLI using --pull-mode '<git-pull-mode>'
+#git_pull_mode='hard'
 
 # git_use_stash
 #  Defines if stash must be used when pulling changes
 #  Value must be 0 or 1. Default is 0.
-#  Can be set to 1 on CLI using --use-stash flag
-git_use_stash=0
+#  Can be set to 1 on CLI using --use-stash
+#git_use_stash=0
 
-######################################
-# Variables to config Magento config #
-######################################
+#################################
+# Variables to config GIT setup #
+#################################
+
+# git_setup_user_name
+#  Defines git user name that must set for local user in the project repo
+#  Default value is ''
+#  Not used when git_setup_user is set to 0
+#  If set, also must define git_setup_user_email
+#  Can be set on CLI using --setup-user-name '<git-setup-user-name>'
+#git_setup_user_name=''
+
+# git_setup_user_email
+#  Defines git user email that must set for local user in the project repo
+#  Default value is ''
+#  Not used when git_setup_user is set to 0
+#  If set, also must define git_setup_user_name
+#  Can be set on CLI using --setup-user-email '<git-setup-user-email>'
+#git_setup_user_email=''
+
+# git_setup_origin_protocol
+#  Defines protocol to use when setting up an env.
+#  Value could be 'http', 'https' or 'ssh'.
+#  Default value is ''
+#  If set to 'http' or 'https', also must define git_setup_origin_user, git_setup_origin_key and git_setup_origin_host
+#  Can be set on CLI using --setup-origin-protocol '<git-setup-origin-protocol>'
+#git_setup_origin_protocol=''
+
+# git_setup_origin_user
+#  Defines user to use when setting up an env with 'http' or 'https' protocol
+#  Default value is ''
+#  If set, also must define git_setup_origin_protocol, git_setup_origin_key and git_setup_origin_host
+#  Can be set on CLI using --setup-origin-user '<git-setup-origin-user>'
+#git_setup_origin_user=''
+
+# git_setup_origin_key
+#  Defines key to use when setting up an env with 'http' or 'https' protocol
+#  Default value is ''
+#  If set, also must define git_setup_origin_protocol, git_setup_origin_user and git_setup_origin_host
+#  Can be set on CLI using --setup-origin-key '<git-setup-origin-key>'
+#git_setup_origin_key=''
+
+# git_setup_origin_host
+#  Defines host to use when setting up an env
+#  Default value is ''
+#  If set, and git_setup_origin_protocol is 'http' or 'https', also must define git_setup_origin_user and git_setup_origin_key
+#  If set, and git_setup_origin_protocol is 'ssh', also must define git_setup_origin_host
+#  Can be set on CLI using --setup-origin-host '<git-setup-origin-host>'
+#git_setup_origin_host=''
+
+# git_setup_origin_branch
+#  Defines branch to use when cloning an env from a remote repo
+#  Default value is ''
+#  Can be set on CLI using --setup-origin-branch '<git-setup-origin-branch>'
+#git_setup_origin_branch=''
+
+###############################
+# Variables to config Magento #
+###############################
 
 # m2_build_files
 #  Defines if Magento must build files and deploy static-content
@@ -35,15 +108,15 @@ git_use_stash=0
 #   bin/magento setup:di:compile
 #   bin/magento setup:static-content:deploy
 #  Value must be 0 or 1. Default is 1.
-#  Can be set to 0 on CLI using --no-build flag
-m2_build_files=1
+#  Can be set to 0 on CLI using --no-build
+#m2_build_files=1
 
 # m2_build_languages
 #  Defines languages to use when deploying static content
-#  Value must be a valid group of languages. Ex. "es_ES en_US"
-#  Default value is empty ("") so Magento will deploy content based on themes config
-#  Can be set on CLI using --languages <m2-build-languages> flag
-m2_build_languages=""
+#  Value must be a valid group of languages. Ex. 'es_ES en_US'
+#  Default value is empty ('') so Magento will deploy content based on themes config
+#  Can be set on CLI using --languages '<m2-build-languages>'
+#m2_build_languages=''
 
 # m2_clean_folders
 #  Defines if Magento must clean content in:
@@ -51,32 +124,32 @@ m2_build_languages=""
 #   pub/static
 #   generated
 #  Value must be 0 or 1. Default is 1.
-#  Can be set to 0 on CLI using --no-clean-folders flag
-m2_clean_folders=1
+#  Can be set to 0 on CLI using --no-clean-folders
+#m2_clean_folders=1
 
 # m2_disable_maintenance
 #  Defines if Magento must execute bin/magento maintenance:disable after deploying.
 #  Value must be 0 or 1. Default is 1.
-#  Can be set to 0 on CLI using --no-disable-maintenance flag
-m2_disable_maintenance=1
+#  Can be set to 0 on CLI using --no-disable-maintenance
+#m2_disable_maintenance=1
 
 # m2_enable_maintenance
 #  Defines if Magento must execute bin/magento maintenance:enable before deploying.
 #  Value must be 0 or 1. Default is 1.
-#  Can be set to 0 on CLI using --no-enable-maintenance flag
-m2_enable_maintenance=1
+#  Can be set to 0 on CLI using --no-enable-maintenance
+#m2_enable_maintenance=1
 
 # m2_flush_cache
 #  Defines if Magento must flush cache when deploying.
 #  Value must be 0 or 1. Default is 1.
-#  Can be set to 0 on CLI using --no-cache-flush flag
-m2_flush_cache=1
+#  Can be set to 0 on CLI using --no-cache-flush
+#m2_flush_cache=1
 
 # m2_install_deps
 #  Defines if Magento must intall dependencies with composer
 #  Value must be 0 or 1. Default is 1
-#  Can be set to 0 on CLI using --no-deps flag
-m2_install_deps=1
+#  Can be set to 0 on CLI using --no-deps
+#m2_install_deps=1
 
 # m2_reindex
 #  Defines if magento must reindex data
@@ -84,8 +157,8 @@ m2_install_deps=1
 #   bin/magento indexer:reset
 #   bin/magento indexer:reindex
 #  Value must be 0 or 1. Default is 1.
-#  Can be set to 0 on CLI using --no-reindex flag
-m2_reindex=1
+#  Can be set to 0 on CLI using --no-reindex
+#m2_reindex=1
 
 # m2_upgrade
 #  Defines if Magento must upgrade config
@@ -93,8 +166,8 @@ m2_reindex=1
 #   bin/magento app:config:import
 #   bin/magento setup:upgrade
 #  Value must be 0 or 1. Default is 1.
-#  Can be set to 0 on CLI using --no-upgrade flag
-m2_upgrade=1
+#  Can be set to 0 on CLI using --no-upgrade
+#m2_upgrade=1
 
 # m2_use_cron
 #  Defines if Magento must use cronjob.
@@ -102,51 +175,173 @@ m2_upgrade=1
 #   bin/magento cron:install -f
 #   bin/magento cron:remove
 #  Value must be 0 or 1. Default is 1.
-#  Can be set to 0 on CLI using --no-cron flag
-m2_use_cron=1
+#  Can be set to 0 on CLI using --no-cron
+#m2_use_cron=1
 
+#####################################
+# Variables to config Magento setup #
+#####################################
 
-# git_protocol - Connection protocol must be http, https or ssh
-git_protocol=ssh
-# git_user - User to access when protocol is http/https
-git_user=
-# git_key - Access key to use when protocol is http/https
-git_key=
-# git_route - Full route to get repo
-git_route=
-# git_branch - Branch to deploy
-git_branch=main
-# repo_user - Repository author name for commits
-repo_user=
-# repo_email - Repository author email for commits
-repo_email=
-# db_host - Database host
-db_host=
-# db_name - Database name
-db_name=
-# db_user - Database user
-db_user=
-# db_pwd - Database password
-db_pwd=
-# search_engine - Allowed search engines are "elasticsearch7" or "opensearch"
-search_engine=
-# search_host - Search engine host (e.x. http://search-engine)
-search_host=
-# search_port - Search engine connection port
-search_port=
-# search_auth - Search need authentication? Allowed values are 1 or 0
-search_auth=
-# search_user - User when search engine needs authentication
-search_user=
-# search_pwd - Password when search engine needs authentication
-search_pwd=
-# base_url - Base url to serve application (e.x. http://localhost/)
-base_url=
-# admin_path - Path to route back office
-admin_path=
-# magento_version - specify Magento version to use when installing a fresh new application. Default is '2.4.7'
-magento_version=
-# php_version - specify PHP version to use when generating Nginx host file. Default is '8.3'
-php_version=
-# excluded_on_install - Space separated module names than must be disabled before install. (ex. "Magento_Sales Magento_Cms")
-excluded_on_install=
+# m2_setup_version
+#  Defines Magento version to be used when settin up a project with no origin defined
+#  Default value is ''
+#  Can be set on CLI using --setup-version '<m2-setup-version>'
+#m2_setup_version=''
+
+# m2_setup_mode
+#  Defines Magento deploy mode
+#  Value must be 'dev' or 'prod'
+#  Default value is 'dev'
+#  Can be set on CLI using --setup-mode '<m2-setup-mode>'
+#m2_setup_mode='dev'
+
+# m2_setup_install
+#  Defines if Magento must execute bin/magento setup:install if necessary
+#  Value must be 0 or 1. Default is 1
+#  Can be set to 0 on CLI using --setup-no-install
+#m2_setup_install=1
+
+# m2_setup_install_base_url
+#  Defines base url to be set when Magento is installed
+#  Not used when m2_setup_install is set to 0
+#  Value must be a valid url, including trailing slash (e.x. http://localhost/)
+#  Default value is ''
+#  Can be set on CLI using --setup-install-base-url '<m2-setup-install-base-url>'
+#m2_setup_install_base_url=''
+
+# m2_setup_install_admin_path
+#  Defines admin path to be set when Magento is installed
+#  Not used when m2_setup_install is set to 0
+#  Default value is ''
+#  Can be set on CLI using --setup-install-admin-path '<m2-setup-install-admin-path>'
+#m2_setup_install_admin_path=''
+
+# m2_setup_install_admin_user
+#  Defines admin user to be set when Magento is installed
+#  Not used when m2_setup_install is set to 0
+#  If set, also must define m2_setup_install_admin_pwd, m2_setup_install_admin_email, m2_setup_install_admin_firstname and m2_setup_install_admin_lastname
+#  Default value is ''
+#  Can be set on CLI using --setup-install-admin-user '<m2-setup-install-admin-user>'
+#m2_setup_install_admin_user=''
+
+# m2_setup_install_admin_pwd
+#  Defines admin password to be set when Magento is installed
+#  Not used when m2_setup_install is set to 0
+#  If set, also must define m2_setup_install_admin_user, m2_setup_install_admin_email, m2_setup_install_admin_firstname and m2_setup_install_admin_lastname
+#  Default value is ''
+#  Can be set on CLI using --setup-install-admin-pwd '<m2-setup-install-admin-pwd>'
+#m2_setup_install_admin_pwd=''
+
+# m2_setup_install_admin_email
+#  Defines admin email to be set when Magento is installed
+#  Not used when m2_setup_install is set to 0
+#  If set, also must define m2_setup_install_admin_user, m2_setup_install_admin_pwd, m2_setup_install_admin_firstname and m2_setup_install_admin_lastname
+#  Default value is ''
+#  Can be set on CLI using --setup-install-admin-email '<m2-setup-install-admin-email>'
+#m2_setup_install_admin_email=''
+
+# m2_setup_install_admin_firstname
+#  Defines admin first name to be set when Magento is installed
+#  Not used when m2_setup_install is set to 0
+#  If set, also must define m2_setup_install_admin_user, m2_setup_install_admin_pwd, m2_setup_install_admin_email and m2_setup_install_admin_lastname
+#  Default value is ''
+#  Can be set on CLI using --setup-install-admin-firstname '<m2-setup-install-admin-firstname>'
+#m2_setup_install_admin_firstname=''
+
+# m2_setup_install_admin_lastname
+#  Defines admin last name to be set when Magento is installed
+#  Not used when m2_setup_install is set to 0
+#  If set, also must define m2_setup_install_admin_user, m2_setup_install_admin_pwd, m2_setup_install_admin_email and m2_setup_install_admin_firstname
+#  Default value is ''
+#  Can be set on CLI using --setup-install-admin-lastname '<m2-setup-install-admin-lastname>'
+#m2_setup_install_admin_lastname=''
+
+# m2_setup_install_db_host
+#  Defines database host to be set when Magento is installed
+#  Not used when m2_setup_install is set to 0
+#  Default value is ''
+#  Can be set on CLI using --setup-install-db-host '<m2-setup-install-db-host>'
+#m2_setup_install_db_host=''
+
+# m2_setup_install_db_name
+#  Defines database name to be set when Magento is installed
+#  Not used when m2_setup_install is set to 0
+#  Default value is ''
+#  Can be set on CLI using --setup-install-db-name '<m2-setup-install-db-name>'
+#m2_setup_install_db_name=''
+
+# m2_setup_install_db_user
+#  Defines database user to be set when Magento is installed
+#  Not used when m2_setup_install is set to 0
+#  Default value is ''
+#  Can be set on CLI using --setup-install-db-user '<m2-setup-install-db-user>'
+#m2_setup_install_db_user=''
+
+# m2_setup_install_db_pwd
+#  Defines database password to be set when Magento is installed
+#  Not used when m2_setup_install is set to 0
+#  Default value is ''
+#  Can be set on CLI using --setup-install-db-pwd '<m2-setup-install-db-pwd>'
+#m2_setup_install_db_pwd=''
+
+# m2_setup_install_db_clean
+#  Defines if database must be clean when Magento is installed
+#  Not used when m2_setup_install is set to 0
+#  Value must be 0 or 1. Default value is 1
+#  Can be set to 0 on CLI using --setup-install-db-no-clean
+#m2_setup_install_db_clean=1
+
+# m2_setup_install_search_engine
+#  Defines search engine to be set when Magento is installed
+#  Not used when m2_setup_install is set to 0
+#  Value must be 'elasticsearch7', 'elasticsearch8' or 'opensearch'
+#  Default value is ''
+#  Can be set on CLI using --setup-install-search-engine '<m2-setup-install-search-engine>'
+#m2_setup_install_search_engine=''
+
+# m2_setup_install_search_host
+#  Defines search host to be set when Magento is installed
+#  Not used when m2_setup_install is set to 0
+#  Value must be a valid host, including protocol (e.x. http://search-engine)
+#  Default value is ''
+#  Can be set on CLI using --setup-install-search-host '<m2-setup-install-search-host>'
+#m2_setup_install_search_host=''
+
+# m2_setup_install_search_port
+#  Defines search port to be set when Magento is installed
+#  Not used when m2_setup_install is set to 0
+#  Default value is ''
+#  Can be set on CLI using --setup-install-search-port '<m2-setup-install-search-port>'
+#m2_setup_install_search_port=''
+
+# m2_setup_install_search_auth
+#  Defines if search host need authentication when Magento is installed
+#  Not used when m2_setup_install is set to 0
+#  Value must be 0 or 1. Default value is 0
+#  If set to 1, also must define m2_setup_install_search_user and m2_setup_install_search_pwd
+#  Can be set to 1 on CLI using --setup-install-search-auth
+#m2_setup_install_search_auth=0
+
+# m2_setup_install_search_user
+#  Defines search user for authentication when Magento is installed
+#  Not used when m2_setup_install or m2_setup_install_search_auth is set to 0
+#  Default value is ''
+#  If set, also must define m2_setup_install_search_pwd
+#  Can be set on CLI using --setup-install-search-user '<m2-setup-install-search-user>'
+#m2_setup_install_search_user=''
+
+# m2_setup_install_search_pwd
+#  Defines search password for authentication when Magento is installed
+#  Not used when m2_setup_install or m2_setup_install_search_auth is set to 0
+#  Default value is ''
+#  If set, also must define m2_setup_install_search_user
+#  Can be set on CLI using --setup-install-search-pwd '<m2-setup-install-search-pwd>'
+#m2_setup_install_search_pwd=''
+
+# m2_setup_install_excluded_modules
+#  Defines which modules must be ommited when Magento is installed
+#  Not used when m2_setup_install is set to 0
+#  Value must be space separated module names (ex. 'Magento_Sales Magento_Cms')
+#  Default value is ''
+#  Can be set on CLI using --setup-install-excluded-modules '<m2-setup-install-excluded-modules>'
+#m2_setup_install_excluded_modules=''
