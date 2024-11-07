@@ -6,13 +6,20 @@ source ~/.magetools/src/bootstrap.sh
 
 # Declare global variables
 cmd_name="vars:create"
-env_name=$(bash ${path_scripts}/get-env-name.sh ${@})
 
 # Fragment: show-help
 source ${path_fragments}/show-help.sh
 
 # Fragment: validate-options
 source ${path_fragments}/validate-options.sh
+
+# Check final args
+[ ${#} -ne 1 ] && [ ${#} -ne 0 ] && error_message "Syntax error when executing ${color_yellow}${cmd_name}${color_none} type ${color_yellow}mage ${cmd_name} --help${color_none} to see the right syntax" && exit 1
+
+# Set env_name
+env_name="${1}"
+[ -z "${env_name}" ] && env_name="default"
+env_name=$(echo "${env_name}" | sed -e "s| |-|")
 
 # Check var directory
 [ ! -d ${path_var} ] && mkdir -vp ${path_var}
