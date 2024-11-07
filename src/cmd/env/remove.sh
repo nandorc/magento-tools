@@ -30,7 +30,7 @@ sudo rm -rfv /magento-app/${env_name}
 source ${path_fragments}/define-nginx-vhost-vars.sh
 
 # Remove env vhost
-sudo rm -rfv ${nginx_vhost_enabled_path} ${nginx_vhost_available_path}
+sudo rm -rfv ${nginx_vhost_enabled_file} ${nginx_vhost_available_file}
 [ ${?} -ne 0 ] && error_message "Can't remove env vhost file" && exit 1
 
 # End script

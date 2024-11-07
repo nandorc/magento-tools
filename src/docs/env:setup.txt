@@ -16,11 +16,6 @@ Options:
         Defines a system user name to be used if $USER variable is empty for any reason
         Not used if $USER is not empty
 
-    --php-version '<system-php-version>'
-        Defines server php version
-        Value must be a valid php version (e.x. '8.3')
-        Default is ''
-
     --setup-install-admin-email '<m2-setup-install-admin-email>'
         Defines admin email to be set when Magento is installed
         If set, also must define --setup-install-admin-user, --setup-install-admin-pwd, --setup-install-admin-firstname and --setup-install-admin-lastname
@@ -176,6 +171,3 @@ Options:
     --setup-version '<m2-setup-version>'
         Defines Magento version to be used when settin up a project with no origin defined
         Default value is ''
-
-    --webserver-https
-        Specifies that web server must use https fastcgi_params

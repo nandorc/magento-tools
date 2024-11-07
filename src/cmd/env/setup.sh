@@ -4,7 +4,7 @@
 [ ! -f ~/.magetools/src/bootstrap.sh ] && error_message "Can not bootstrap magetools" && exit 1
 source ~/.magetools/src/bootstrap.sh
 
-# Get env identity
+# Declare global variables
 cmd_name="env:setup"
 env_name=$(bash ${path_scripts}/get-env-name.sh ${@})
 
@@ -187,29 +187,6 @@ if [ ${git_setup_create_first_commit} -eq 1 ]; then
     git add . && git commit -m "Setup Magento project at $(date)"
     [ ${?} -ne 0 ] && error_message "Can't create init commit for Magento project" && exit 1
 fi
-
-# Replicate and clean nginx conf file
-if [ -f nginx.conf ]; then
-    cp -v nginx.conf ${path_env}/${env_name}/nginx.conf
-else
-    cp -v ${path_templates}/nginx.conf.sample ${path_env}/${env_name}/nginx.conf
-fi
-if [ ${system_webserver_https} -eq 0 ]; then
-    sed -i -e "/HTTPS \"on\"/d" ${path_env}/${env_name}/nginx.conf
-    sed -i -e "/HTTP_X_FORWARDED_PROTO \"https\"/d" ${path_env}/${env_name}/nginx.conf
-fi
-
-# Fragment: define-nginx-vhost-vars
-source ${path_fragments}/define-nginx-vhost-vars.sh
-
-# Create nginx host file
-[ -z "${system_php_version}" ] && error_message "PHP version must be defined" && exit 1
-sudo rm -rfv ${nginx_vhost_enabled_path} ${nginx_vhost_available_path}
-sudo cp -v ${path_templates}/magento-vhost.sample ${nginx_vhost_available_path}
-sudo chown -v root:root ${nginx_vhost_available_path}
-sudo sed -i -e "s|%PHP_VERSION%|${system_php_version}|" ${nginx_vhost_available_path}
-sudo sed -i -e "s|%M2_SITE_ROOT%|${path_env}/${env_name}/site|" ${nginx_vhost_available_path}
-sudo sed -i -e "s|%M2_NGINX_FILE%|${path_env}/${env_name}/nginx.conf|" ${nginx_vhost_available_path}
 
 # End script
 exit 0

@@ -4,6 +4,8 @@
 while [ -n "$(echo "${1}" | grep "^-")" ]; do
     if [ "${1}" == "--help" ]; then
         cmd_use_help=1
+    elif [ "${1}" == "--force" ]; then
+        cmd_use_force=1
     elif [ "${1}" == "--fallback-user" ]; then
         ([ -z "${2}" ] || [ -n "$(echo "${2}" | grep "^-")" ]) && error_message "fallback-user not defined" && exit 1
         system_fallback_user="${2}" && shift
@@ -137,6 +139,11 @@ done
 [ -z "${cmd_use_help}" ] && cmd_use_help=0
 [ ${#cmd_use_help} -ne 1 ] && error_message "Invalid value for ${color_yellow}cmd_use_help${color_none}" && exit 1
 [ ${cmd_use_help} -ne 1 ] && [ ${cmd_use_help} -ne 0 ] && error_message "Invalid value for ${color_yellow}cmd_use_help${color_none}" && exit 1
+
+# cmd_use_force
+[ -z "${cmd_use_force}" ] && cmd_use_force=0
+[ ${#cmd_use_force} -ne 1 ] && error_message "Invalid value for ${color_yellow}cmd_use_force${color_none}" && exit 1
+[ ${cmd_use_force} -ne 1 ] && [ ${cmd_use_force} -ne 0 ] && error_message "Invalid value for ${color_yellow}cmd_use_force${color_none}" && exit 1
 
 # system_fallback_user
 [ -z "${system_fallback_user}" ] && system_fallback_user=""
