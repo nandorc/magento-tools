@@ -4,9 +4,9 @@
 while [ -n "$(echo "${1}" | grep "^-")" ]; do
     if [ "${1}" == "--help" ]; then
         cmd_use_help=1
-    elif [ "${1}" == "--name" ]; then
-        ([ -z "${2}" ] || [ -n "$(echo "${2}" | grep "^-")" ]) && error_message "name not defined" && exit 1
-        env_name="${2}" && shift
+    elif [ "${1}" == "--fallback-user" ]; then
+        ([ -z "${2}" ] || [ -n "$(echo "${2}" | grep "^-")" ]) && error_message "fallback-user not defined" && exit 1
+        system_fallback_user="${2}" && shift
     elif [ "${1}" == "--php-version" ]; then
         ([ -z "${2}" ] || [ -n "$(echo "${2}" | grep "^-")" ]) && error_message "php-version not defined" && exit 1
         system_php_version="${2}" && shift
@@ -138,9 +138,8 @@ done
 [ ${#cmd_use_help} -ne 1 ] && error_message "Invalid value for ${color_yellow}cmd_use_help${color_none}" && exit 1
 [ ${cmd_use_help} -ne 1 ] && [ ${cmd_use_help} -ne 0 ] && error_message "Invalid value for ${color_yellow}cmd_use_help${color_none}" && exit 1
 
-# env_name
-[ -z "${env_name}" ] && env_name="default"
-env_name=$(echo "${env_name}" | sed -e "s| |-|")
+# system_fallback_user
+[ -z "${system_fallback_user}" ] && system_fallback_user=""
 
 # system_php_version
 [ -z "${system_php_version}" ] && system_php_version=""

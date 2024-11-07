@@ -13,6 +13,7 @@ source ${path_fragments}/command-init-vars.sh
 
 # Set env_user
 env_user=${USER}
+[ -z "${env_user}" ] && env_user="${system_fallback_user}"
 if [ -z "${env_user}" ]; then
     info_message "OS user name: \c" && read env_user
 fi

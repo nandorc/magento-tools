@@ -2,6 +2,13 @@
 # Variables to config System setup #
 ####################################
 
+# system_fallback_user
+#  Defines a system user name to be used if $USER variable is empty for any reason
+#  Not used if $USER is not empty
+#  Default value is ''
+#  Can be set on CLI using --fallback-user '<system-fallback-user>'
+#system_fallback_user=''
+
 # system_webserver_https
 #  Defines if web server must use https fastcgi_params
 #  Value must be 0 or 1. Default is 0

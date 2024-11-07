@@ -1,12 +1,13 @@
-mage env:remove [options]
+mage env:remove [options] [<env-name>]
 
 Description:
     This command lets you full delete an env.
 
+Params
+    <env-name> [OPTIONAL]
+        Specifies the env-name to be used when executing commands.
+        Default is 'default'.
+
 Options:
     --help
         Displays this document.
-    
-    --name '<env-name>'
-        Specifies the env-name to be used when executing commands.
-        Default is 'default'.
