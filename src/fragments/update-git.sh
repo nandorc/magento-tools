@@ -7,11 +7,14 @@ if [ ${has_git} -eq 1 ]; then
 fi
 
 # Check not commited files and stash if allowed
-if [ ${has_git} -eq 1 ] && [ -n "${git_deploy_branch}" ] && [ -n "$(git status -s)" ]; then
-    [ ${git_use_stash} -eq 0 ] && error_message "Can't execute git actions. Pending data to commit found in repo. Review env files or set git_use_stash param to 1 or use --use-stash flag to try to save and re-apply pending changes." && exit 1
-    [ -n "$(git stash list)" ] && error_message "Can't create a new stash if there is an existent one" && exit 1
-    git stash push -u
-    [ ${?} -ne 0 ] && error_message "Can't stash current changes" && exit 1
+if [ ${has_git} -eq 1 ] && [ -n "$(git status -s)" ]; then
+    if [ ${git_use_stash} -eq 1 ]; then
+        [ -n "$(git stash list)" ] && error_message "Can't create a new stash if there is an existent one" && exit 1
+        git stash push -u
+        [ ${?} -ne 0 ] && error_message "Can't stash current changes" && exit 1
+    else
+        [ "${git_pull_mode}" == "soft" ] && error_message "Can't execute git actions. Pending data to commit found in repo. Review env files or set git_use_stash param to 1 or use --use-stash flag to try to save and re-apply pending changes." && exit 1
+    fi
 fi
 
 # Switch to target branch
@@ -32,7 +35,7 @@ if [ ${has_git} -eq 1 ] && [ ${git_has_remote} -eq 1 ] && [ -n "${git_deploy_bra
 fi
 
 # Restore not commited files if stash is allowed and used
-if [ ${has_git} -eq 1 ] && [ -n "${git_deploy_branch}" ] && [ ${git_use_stash} -eq 1 ] && [ -n "$(git stash list)" ]; then
+if [ ${has_git} -eq 1 ] && [ ${git_use_stash} -eq 1 ] && [ -n "$(git stash list)" ]; then
     git stash pop
     [ ${?} -ne 0 ] && error_message "Can't restore changes from stash" && exit 1
 fi
